@@ -1314,49 +1314,53 @@ Rules:
      RENDER: MAIN APP SHELL
      ============================================================ */
   return (
-    <div className="app-shell">
+    <>
+      {/* ============ TOP HEADER BAR (full-width, fixed — AVA pattern) ============ */}
+      <header className="isla-hero">
+        <div className="isla-hero__brand" onClick={() => navigateTo('dashboard')}>
+          <img src="/Perry.png" alt="ISLA" className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
+          <div>
+            <h1 className="isla-hero__title">
+              <span className="isla-hero__gold">I</span>nteractive{' '}
+              <span className="isla-hero__gold">S</span>tudy &{' '}
+              <span className="isla-hero__gold">L</span>icensure{' '}
+              <span className="isla-hero__gold">A</span>ssistant
+            </h1>
+            <span className="isla-hero__subtitle">LARE EXAM PREP · NC A&T STATE UNIVERSITY</span>
+          </div>
+        </div>
+        <div className="isla-hero__actions">
+          <nav className="isla-hero__nav">
+            {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => navigateTo(tab.toLowerCase())}
+                className={`isla-hero__tab ${activeTab === tab.toLowerCase() ? 'isla-hero__tab--active' : ''}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
+          <button onClick={() => setShowCalculator(!showCalculator)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', transition: 'all 0.2s' }} title="Grading Calculator">
+            <Calculator size={20} />
+          </button>
+          <div className="isla-hero__user">
+            <div style={{ textAlign: 'right' }}>
+              <p className="isla-hero__user-name">{userData.name}</p>
+              <p className="isla-hero__user-id">ID: {firebaseUser?.uid ? firebaseUser.uid.substring(0, 8).toUpperCase() : 'LOCAL-US'}</p>
+            </div>
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', transition: 'all 0.2s' }} title="Sign Out">
+              <LogOut size={20} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="app-shell">
       <ConfettiEffect active={showConfetti} />
       {Sidebar()}
 
       <div className="main-area">
-        <header className="isla-hero">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            <div className="isla-hero__brand" onClick={() => navigateTo('dashboard')}>
-              <img src="/Perry.png" alt="ISLA" className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
-              <div>
-                <h1 className="isla-hero__title">ISLA</h1>
-                <p className="isla-hero__subtitle">Interactive Study & Licensure Assistant</p>
-                <p className="isla-hero__university">NC A&T State University</p>
-              </div>
-            </div>
-            <nav className="isla-hero__nav">
-              {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => navigateTo(tab.toLowerCase())}
-                  className={`isla-hero__tab ${activeTab === tab.toLowerCase() ? 'isla-hero__tab--active' : ''}`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="isla-hero__actions">
-            <button className="btn btn--gold" style={{ fontSize: '0.6875rem', padding: '0.6rem 1.5rem', textTransform: 'uppercase', letterSpacing: '0.2em' }} onClick={() => setShowCalculator(!showCalculator)}>
-              <Calculator size={18} /> Calculator
-            </button>
-            <div className="isla-hero__user">
-              <div style={{ textAlign: 'right' }}>
-                <p className="isla-hero__user-name">{userData.name}</p>
-                <p className="isla-hero__user-id">ID: {firebaseUser?.uid ? firebaseUser.uid.substring(0, 8).toUpperCase() : 'LOCAL-US'}</p>
-              </div>
-              <button onClick={handleLogout} style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', transition: 'all 0.2s' }} title="Sign Out" onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>
-                <LogOut size={20} />
-              </button>
-            </div>
-          </div>
-        </header>
 
         <main className="content">
           {/* NEW: Adaptive Quiz Mode */}
@@ -1533,5 +1537,6 @@ Rules:
         </div>
       )}
     </div>
+    </>
   );
 }

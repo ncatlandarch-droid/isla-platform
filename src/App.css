@@ -80,6 +80,7 @@ body {
 .app-shell {
   display: flex;
   height: 100vh;
+  padding-top: 72px;
   background: var(--surface);
   font-family: var(--font-sans);
   color: var(--text-primary);
@@ -284,7 +285,7 @@ body {
   min-width: 0;
 }
 
-/* Hero Header — AVA-style animated gradient */
+/* Hero Header — AVA-style animated gradient (full-width, fixed) */
 @keyframes headerGradient {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -292,19 +293,22 @@ body {
 }
 
 .isla-hero {
-  background: linear-gradient(135deg, #003366, #004684, #005599, #004684, #003366);
-  background-size: 300% 300%;
-  animation: headerGradient 12s ease infinite;
-  border-bottom: 3px solid;
-  border-image: linear-gradient(90deg, #FDB927, #E6A521, #FDB927) 1;
-  padding: 1.25rem 3rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  padding: 10px 20px 14px;
+  height: 72px;
+  background: linear-gradient(135deg, #001c3d 0%, #004684 40%, #003366 70%, #001c3d 100%);
+  background-size: 300% 300%;
+  animation: headerGradient 12s ease-in-out infinite;
+  border-bottom: 4px solid transparent;
+  border-image: linear-gradient(90deg, #FDB927, #ffe082, #FDB927, #ffab00, #FDB927) 1;
+  box-shadow: 0 4px 20px rgba(0, 70, 132, 0.25);
 }
 
 .isla-hero__brand {
@@ -317,93 +321,91 @@ body {
 .isla-hero__brand:hover { opacity: 0.85; }
 
 .isla-hero__avatar {
-  width: 48px;
-  height: 48px;
+  height: 50px;
+  width: auto;
+  object-fit: contain;
   border-radius: 50%;
   border: 3px solid var(--aggie-gold);
-  object-fit: cover;
   box-shadow: 0 0 16px rgba(253, 185, 39, 0.3);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
   flex-shrink: 0;
 }
 
 .isla-hero__title {
-  font-size: 1.75rem;
-  font-weight: 900;
-  letter-spacing: -0.025em;
-  line-height: 1;
-  color: #ffffff;
-  text-transform: uppercase;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  color: #fff;
 }
 
 .isla-hero__subtitle {
-  font-size: 0.5rem;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.isla-hero__gold {
   color: var(--aggie-gold);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.35em;
-  line-height: 1;
-  margin-top: 0.35rem;
 }
 
-.isla-hero__university {
-  font-size: 0.45rem;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  margin-top: 0.2rem;
-}
 
-/* Nav Tabs — dark bg variant */
+/* Nav Tabs — AVA-style icon buttons */
 .isla-hero__nav {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 6px;
 }
 
 .isla-hero__tab {
-  padding: 0.5rem 1.5rem;
-  border-radius: var(--radius-full);
-  font-size: 0.625rem;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  border: none;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: all 0.3s;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
   font-family: var(--font-sans);
 }
 
 .isla-hero__tab:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(253, 185, 39, 0.2);
+  color: #fff;
+  border-color: rgba(253, 185, 39, 0.4);
 }
 
 .isla-hero__tab--active {
-  background: var(--aggie-gold);
-  color: var(--aggie-blue);
-  box-shadow: 0 2px 12px rgba(253, 185, 39, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Header Right — dark bg */
 .isla-hero__actions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 6px;
 }
 
 .isla-hero__user {
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  padding-left: 1.5rem;
+  margin-left: 8px;
 }
 
 .isla-hero__user-name {
-  font-size: 0.875rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: #ffffff;
 }
 
