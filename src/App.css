@@ -1,5 +1,5 @@
 /* ========================================
-   LARE LAAB — NC A&T Program of Landscape Architecture
+   ISLA — Interactive Study & Licensure Assistant | NC A&T State University
    Design System & Application Styles
    ======================================== */
 
@@ -471,6 +471,18 @@ body {
   letter-spacing: -0.025em;
   text-transform: uppercase;
   line-height: 1;
+  text-align: center;
+}
+
+.login__brand-full {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--aggie-blue);
+  opacity: 0.5;
+  margin-top: 0.5rem;
   text-align: center;
 }
 

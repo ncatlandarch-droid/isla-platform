@@ -112,7 +112,7 @@ export default function App() {
     return { streak: 0, mastery: 0, solved: 0, lastStudyDate: '' };
   });
   const [chatHistory, setChatHistory] = useState([
-    { role: 'perry', text: "Welcome to the LARE LAAB. I'm Coach Perry. Ready to sharpen your technical edge today?" }
+    { role: 'perry', text: "Welcome to ISLA. I'm Coach Perry. Ready to sharpen your technical edge today?" }
   ]);
   const [chatInput, setChatInput] = useState("");
   const chatScrollRef = useRef(null);
@@ -364,7 +364,7 @@ Rules:
 - If asked something outside landscape architecture, gently redirect to LARE topics`;
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyACKUvV4R7Vu_Zl3truT3hmjC99W7JZiig`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -535,7 +535,8 @@ Rules:
             <div className="login__logo-wrap">
               <Compass color={AGGIE_BLUE} size={50} />
             </div>
-            <h1 className="login__title">LARE LAAB</h1>
+            <h1 className="login__title">ISLA</h1>
+            <span className="login__brand-full">Interactive Study & Licensure Assistant</span>
             <div className="login__divider" />
 
             {/* Coach Perry welcome on landing */}
@@ -1321,8 +1322,13 @@ Rules:
         <header className="header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
             <div className="header__brand" onClick={() => navigateTo('dashboard')}>
-              <h1 className="header__title">LARE LAAB</h1>
-              <p className="header__subtitle">Mastery Innovation</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>🏝️</span>
+                <div>
+                  <h1 className="header__title">ISLA</h1>
+                  <p className="header__subtitle">Interactive Study & Licensure Assistant</p>
+                </div>
+              </div>
             </div>
             <nav className="header__nav">
               {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
@@ -1477,7 +1483,7 @@ Rules:
           <span className="footer__left">
             © 2026 North Carolina A&T State University <div className="footer__divider" /> Program of Landscape Architecture
           </span>
-          <span className="footer__center">THE LARE LAAB v3.2 • {firebaseReady && firebaseUser ? 'CLOUD SYNC ACTIVE' : 'LOCAL MODE'}</span>
+          <span className="footer__center">ISLA v4.0 · LARE Module • {firebaseReady && firebaseUser ? 'CLOUD SYNC ACTIVE' : 'LOCAL MODE'}</span>
           <span>EST. 2026</span>
         </footer>
       </div>
