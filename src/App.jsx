@@ -112,7 +112,7 @@ export default function App() {
     return { streak: 0, mastery: 0, solved: 0, lastStudyDate: '' };
   });
   const [chatHistory, setChatHistory] = useState([
-    { role: 'perry', text: "Welcome to ISLA. I'm Coach Perry. Ready to sharpen your technical edge today?" }
+    { role: 'isla', text: "Welcome to ISLA! Ready to sharpen your technical edge today?" }
   ]);
   const [chatInput, setChatInput] = useState("");
   const chatScrollRef = useRef(null);
@@ -339,7 +339,7 @@ export default function App() {
     setChatInput("");
 
     // Show thinking indicator
-    setChatHistory(prev => [...prev, { role: 'perry', text: '...thinking...', timestamp: Date.now(), isThinking: true }]);
+    setChatHistory(prev => [...prev, { role: 'isla', text: '...thinking...', timestamp: Date.now(), isThinking: true }]);
 
     try {
       // Build conversation context for Gemini
@@ -347,7 +347,7 @@ export default function App() {
         c.role === 'user' ? { role: 'user', parts: [{ text: c.text }] } : { role: 'model', parts: [{ text: c.text }] }
       );
 
-      const systemPrompt = `You are Coach Perry, the LARE (Landscape Architect Registration Examination) mentor at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive professor who genuinely cares about each student's success.
+      const systemPrompt = `You are ISLA, the AI study coach for the LARE (Landscape Architect Registration Examination) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach who genuinely cares about each student's success.
 
 Your expertise covers:
 - LARE Sections 1-4 (Project & Construction Management, Inventory & Analysis, Design, Grading Drainage & Stormwater)
@@ -384,8 +384,8 @@ Rules:
       setChatHistory(prev => {
         const updated = [...prev];
         const thinkingIdx = updated.findLastIndex(c => c.isThinking);
-        if (thinkingIdx >= 0) updated[thinkingIdx] = { role: 'perry', text: reply, timestamp: Date.now() };
-        else updated.push({ role: 'perry', text: reply, timestamp: Date.now() });
+        if (thinkingIdx >= 0) updated[thinkingIdx] = { role: 'isla', text: reply, timestamp: Date.now() };
+        else updated.push({ role: 'isla', text: reply, timestamp: Date.now() });
         return updated;
       });
       perryVoice.speak(reply);
@@ -402,8 +402,8 @@ Rules:
       setChatHistory(prev => {
         const updated = [...prev];
         const thinkingIdx = updated.findLastIndex(c => c.isThinking);
-        if (thinkingIdx >= 0) updated[thinkingIdx] = { role: 'perry', text: reply, timestamp: Date.now() };
-        else updated.push({ role: 'perry', text: reply, timestamp: Date.now() });
+        if (thinkingIdx >= 0) updated[thinkingIdx] = { role: 'isla', text: reply, timestamp: Date.now() };
+        else updated.push({ role: 'isla', text: reply, timestamp: Date.now() });
         return updated;
       });
       playPerryStatic(audioKey);
@@ -539,20 +539,20 @@ Rules:
             <span className="login__brand-full">Interactive Study & Licensure Assistant</span>
             <div className="login__divider" />
 
-            {/* Coach Perry welcome on landing */}
+            {/* ISLA welcome on landing */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
               <img
-                src="/perry-avatar.webp"
-                alt="Coach Perry"
+                src="/Perry.png"
+                alt="ISLA"
                 style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${AGGIE_GOLD}`, objectFit: 'cover' }}
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
-              <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>Coach Perry</span>
+              <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>ISLA</span>
               {isSpeaking ? (
                 <button
                   onClick={stopPerry}
                   className="sidebar__stop-btn"
-                  title="Stop Perry"
+                  title="Stop ISLA"
                 >
                   <Square size={10} fill="currentColor" /> Stop
                 </button>
@@ -668,22 +668,22 @@ Rules:
             <div className={`sidebar__avatar ${isSpeaking ? 'sidebar__avatar--speaking' : ''}`}>
               <img
                 src="Perry.png"
-                alt="Coach Perry"
-                onError={(e) => { e.target.src = "https://placehold.co/400x400/004684/FDB927?text=Perry"; }}
+                alt="ISLA"
+                onError={(e) => { e.target.src = "https://placehold.co/400x400/004684/FDB927?text=ISLA"; }}
               />
               {isSpeaking && <div className="sidebar__avatar-wavelength" />}
             </div>
-            <h3 className="sidebar__name">Coach Perry</h3>
+            <h3 className="sidebar__name">ISLA</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', marginTop: '0.25rem' }}>
-              <p className="sidebar__role">Licensure Mentor</p>
-              <button onClick={toggleMute} className="sidebar__mute-btn" title={isMuted ? 'Unmute Perry' : 'Mute Perry'}>
+              <p className="sidebar__role">Your Study Coach</p>
+              <button onClick={toggleMute} className="sidebar__mute-btn" title={isMuted ? 'Unmute ISLA' : 'Mute ISLA'}>
                 {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
               </button>
               {isSpeaking ? (
                 <button
                   onClick={stopPerry}
                   className="sidebar__stop-btn"
-                  title="Stop Perry"
+                  title="Stop ISLA"
                 >
                   <Square size={10} fill="currentColor" /> Stop
                 </button>
@@ -691,7 +691,7 @@ Rules:
                 <button
                   onClick={replayPerry}
                   className="sidebar__play-btn"
-                  title="Replay Perry"
+                  title="Replay ISLA"
                 >
                   <Play size={10} fill="currentColor" /> Replay
                 </button>
@@ -701,7 +701,7 @@ Rules:
 
           <div className="sidebar__chat scrollbar-hide" ref={chatScrollRef}>
             {chatHistory.map((chat, idx) => (
-              <div key={idx} className={`chat-bubble ${chat.role === 'user' ? 'chat-bubble--user' : 'chat-bubble--perry'}`}>
+              <div key={idx} className={`chat-bubble ${chat.role === 'user' ? 'chat-bubble--user' : 'chat-bubble--isla'}`}>
                 {chat.text}
               </div>
             ))}
@@ -713,7 +713,7 @@ Rules:
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 className="sidebar__chat-input"
-                placeholder="Ask Perry anything..."
+                placeholder="Ask ISLA anything..."
               />
               <button type="submit" className="sidebar__chat-send"><Send size={22} /></button>
             </div>
@@ -722,7 +722,7 @@ Rules:
       ) : (
         <div className="sidebar__collapsed-icons">
           <div className="sidebar__collapsed-avatar">
-            <img src="Perry.png" alt="P" onError={(e) => { e.target.src = "https://placehold.co/100/004684/FDB927?text=P"; }} />
+            <img src="Perry.png" alt="ISLA" onError={(e) => { e.target.src = "https://placehold.co/100/004684/FDB927?text=I"; }} />
           </div>
           <div className="sidebar__collapsed-nav">
             <BarChart3 size={28} />
@@ -1319,23 +1319,22 @@ Rules:
       {Sidebar()}
 
       <div className="main-area">
-        <header className="header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
-            <div className="header__brand" onClick={() => navigateTo('dashboard')}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>🏝️</span>
-                <div>
-                  <h1 className="header__title">ISLA</h1>
-                  <p className="header__subtitle">Interactive Study & Licensure Assistant</p>
-                </div>
+        <header className="isla-hero">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <div className="isla-hero__brand" onClick={() => navigateTo('dashboard')}>
+              <img src="/Perry.png" alt="ISLA" className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
+              <div>
+                <h1 className="isla-hero__title">ISLA</h1>
+                <p className="isla-hero__subtitle">Interactive Study & Licensure Assistant</p>
+                <p className="isla-hero__university">NC A&T State University</p>
               </div>
             </div>
-            <nav className="header__nav">
+            <nav className="isla-hero__nav">
               {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => navigateTo(tab.toLowerCase())}
-                  className={`header__tab ${activeTab === tab.toLowerCase() ? 'header__tab--active' : ''}`}
+                  className={`isla-hero__tab ${activeTab === tab.toLowerCase() ? 'isla-hero__tab--active' : ''}`}
                 >
                   {tab}
                 </button>
@@ -1343,17 +1342,17 @@ Rules:
             </nav>
           </div>
 
-          <div className="header__actions">
-            <button className="btn btn--gold" style={{ fontSize: '0.6875rem', padding: '0.75rem 2rem', textTransform: 'uppercase', letterSpacing: '0.2em' }} onClick={() => setShowCalculator(!showCalculator)}>
-              <Calculator size={20} /> Calculator
+          <div className="isla-hero__actions">
+            <button className="btn btn--gold" style={{ fontSize: '0.6875rem', padding: '0.6rem 1.5rem', textTransform: 'uppercase', letterSpacing: '0.2em' }} onClick={() => setShowCalculator(!showCalculator)}>
+              <Calculator size={18} /> Calculator
             </button>
-            <div className="header__user">
+            <div className="isla-hero__user">
               <div style={{ textAlign: 'right' }}>
-                <p className="header__user-name">{userData.name}</p>
-                <p className="header__user-id">ID: {firebaseUser?.uid ? firebaseUser.uid.substring(0, 8).toUpperCase() : 'LOCAL-US'}</p>
+                <p className="isla-hero__user-name">{userData.name}</p>
+                <p className="isla-hero__user-id">ID: {firebaseUser?.uid ? firebaseUser.uid.substring(0, 8).toUpperCase() : 'LOCAL-US'}</p>
               </div>
-              <button className="btn btn--ghost" onClick={handleLogout} style={{ padding: '0.75rem', borderRadius: '50%' }} title="Sign Out">
-                <LogOut size={22} />
+              <button onClick={handleLogout} style={{ padding: '0.5rem', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', transition: 'all 0.2s' }} title="Sign Out" onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>
+                <LogOut size={20} />
               </button>
             </div>
           </div>
