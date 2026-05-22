@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import UNIVERSITY from './config/university.js';
+import CollegeSelector from './components/CollegeSelector.jsx';
 import {
   Compass, Map as MapIcon, Layers, CheckCircle2, AlertCircle,
   History, BarChart3, UserCircle, Play, Save, Trash2, ChevronRight,
@@ -79,6 +81,10 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+
+  // --- Program Selection (modular architecture) ---
+  const [activeProgram, setActiveProgram] = useState(null);   // null | 'lare' | 'nclex' etc.
+  const [activeCollege, setActiveCollege] = useState(null);   // null | college object
 
   // --- App Navigation ---
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -1313,12 +1319,26 @@ Rules:
   /* ============================================================
      RENDER: MAIN APP SHELL
      ============================================================ */
+  // --- Program selection handler ---
+  const handleSelectProgram = (college, program) => {
+    setActiveCollege(college);
+    setActiveProgram(program.id);
+    setActiveTab('dashboard');
+  };
+  const handleBackToPrograms = () => {
+    setActiveProgram(null);
+    setActiveCollege(null);
+    setActiveTab('dashboard');
+    setSelectedSection(null);
+    setShowCalculator(false);
+  };
+
   return (
     <>
-      {/* ============ TOP HEADER BAR (full-width, fixed — AVA pattern) ============ */}
+      {/* ============ TOP HEADER BAR (universal — same for ALL programs) ============ */}
       <header className="isla-hero">
-        <div className="isla-hero__brand" onClick={() => navigateTo('dashboard')}>
-          <img src="/Perry.png" alt="ISLA" className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
+        <div className="isla-hero__brand" onClick={activeProgram ? handleBackToPrograms : undefined} style={activeProgram ? { cursor: 'pointer' } : {}}>
+          <img src={UNIVERSITY.mascot.avatar} alt={UNIVERSITY.mascot.name} className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
           <div>
             <h1 className="isla-hero__title">
               <span className="isla-hero__gold">I</span>nteractive{' '}
@@ -1326,24 +1346,28 @@ Rules:
               <span className="isla-hero__gold">L</span>icensure{' '}
               <span className="isla-hero__gold">A</span>ssistant
             </h1>
-            <span className="isla-hero__subtitle">LARE EXAM PREP · NC A&T STATE UNIVERSITY</span>
+            <span className="isla-hero__subtitle">
+              {activeProgram && activeCollege
+                ? `${activeCollege.programs.find(p => p.id === activeProgram)?.exam || activeProgram.toUpperCase()} EXAM PREP · ${activeCollege.shortName}`
+                : UNIVERSITY.tagline
+              }
+            </span>
           </div>
         </div>
         <div className="isla-hero__actions">
-          <nav className="isla-hero__nav">
-            {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => navigateTo(tab.toLowerCase())}
-                className={`isla-hero__tab ${activeTab === tab.toLowerCase() ? 'isla-hero__tab--active' : ''}`}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
-          <button onClick={() => setShowCalculator(!showCalculator)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', transition: 'all 0.2s' }} title="Grading Calculator">
-            <Calculator size={20} />
-          </button>
+          {/* Back button (visible when program is active) */}
+          {activeProgram && (
+            <button className="isla-hero__back-btn" onClick={handleBackToPrograms} title="Back to Programs">
+              <ArrowLeft size={18} />
+            </button>
+          )}
+          {/* College badge (visible when program is active) */}
+          {activeCollege && (
+            <div className="isla-hero__college-badge">
+              <span className="isla-hero__college-badge-icon">{activeCollege.icon}</span>
+              {activeCollege.shortName}
+            </div>
+          )}
           <div className="isla-hero__user">
             <div style={{ textAlign: 'right' }}>
               <p className="isla-hero__user-name">{userData.name}</p>
@@ -1353,15 +1377,40 @@ Rules:
               <LogOut size={20} />
             </button>
           </div>
-          <img src="/ncat-logo.png" alt="NC A&T" className="isla-hero__logo-right" />
+          <img src={UNIVERSITY.logo} alt={UNIVERSITY.shortName} className="isla-hero__logo-right" />
         </div>
       </header>
 
       <div className="app-shell">
       <ConfettiEffect active={showConfetti} />
-      {Sidebar()}
 
-      <div className="main-area">
+      {/* ============ COLLEGE SELECTOR (no program selected) ============ */}
+      {!activeProgram ? (
+        <CollegeSelector onSelectProgram={handleSelectProgram} />
+      ) : (
+        <>
+        {Sidebar()}
+        <div className="main-area">
+
+        {/* Content Nav — tabs moved from header to body */}
+        <div className="content-nav">
+          <div className="content-nav__tabs">
+            {['Dashboard', 'Modules', 'Registration', 'Resources', 'Analytics'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => navigateTo(tab.toLowerCase())}
+                className={`content-nav__tab ${activeTab === tab.toLowerCase() ? 'content-nav__tab--active' : ''}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          <div className="content-nav__tools">
+            <button className="btn btn--gold" style={{ fontSize: '0.6875rem', padding: '0.5rem 1.25rem', textTransform: 'uppercase', letterSpacing: '0.15em' }} onClick={() => setShowCalculator(!showCalculator)}>
+              <Calculator size={16} /> Calculator
+            </button>
+          </div>
+        </div>
 
         <main className="content">
           {/* NEW: Adaptive Quiz Mode */}
@@ -1485,12 +1534,14 @@ Rules:
 
         <footer className="footer">
           <span className="footer__left">
-            © 2026 North Carolina A&T State University <div className="footer__divider" /> Program of Landscape Architecture
+            © 2026 {UNIVERSITY.name} {activeProgram === 'lare' && <><div className="footer__divider" /> Program of Landscape Architecture</>}
           </span>
-          <span className="footer__center">ISLA v4.0 · LARE Module • {firebaseReady && firebaseUser ? 'CLOUD SYNC ACTIVE' : 'LOCAL MODE'}</span>
+          <span className="footer__center">ISLA v4.0 {activeProgram ? `· ${activeProgram.toUpperCase()} Module` : ''} • {firebaseReady && firebaseUser ? 'CLOUD SYNC ACTIVE' : 'LOCAL MODE'}</span>
           <span>EST. 2026</span>
         </footer>
       </div>
+      </>
+      )}
 
       {/* Calculator Overlay */}
       {showCalculator && (
