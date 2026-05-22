@@ -1353,6 +1353,7 @@ Rules:
               <LogOut size={20} />
             </button>
           </div>
+          <img src="/ncat-logo.png" alt="NC A&T" className="isla-hero__logo-right" />
         </div>
       </header>
 
