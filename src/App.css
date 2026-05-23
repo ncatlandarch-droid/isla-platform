@@ -320,10 +320,10 @@ body {
 }
 
 .isla-hero__logo-left {
-  width: 200px;
-  height: auto;
+  height: 40px;
+  width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
   flex-shrink: 0;
 }
 

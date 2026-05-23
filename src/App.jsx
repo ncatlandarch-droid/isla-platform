@@ -1339,7 +1339,7 @@ Rules:
       {/* ============ TOP HEADER BAR (universal — same for ALL programs) ============ */}
       <header className="isla-hero">
         <div className="isla-hero__brand" onClick={activeProgram ? handleBackToPrograms : undefined} style={activeProgram ? { cursor: 'pointer' } : {}}>
-          <img src="/ncat-at-logo.png" alt="NC A&T" className="isla-hero__logo-left" />
+          <img src="/ncat-logo-white.png" alt="NC A&T" className="isla-hero__logo-left" />
           <div className="isla-hero__separator" />
           <img src={UNIVERSITY.mascot.avatar} alt={UNIVERSITY.mascot.name} className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
           <div>
