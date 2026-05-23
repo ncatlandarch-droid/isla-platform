@@ -1338,6 +1338,8 @@ Rules:
       {/* ============ TOP HEADER BAR (universal — same for ALL programs) ============ */}
       <header className="isla-hero">
         <div className="isla-hero__brand" onClick={activeProgram ? handleBackToPrograms : undefined} style={activeProgram ? { cursor: 'pointer' } : {}}>
+          <img src={UNIVERSITY.logo} alt={UNIVERSITY.shortName} className="isla-hero__logo-left" />
+          <div className="isla-hero__separator" />
           <img src={UNIVERSITY.mascot.avatar} alt={UNIVERSITY.mascot.name} className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
           <div>
             <h1 className="isla-hero__title">
@@ -1364,7 +1366,7 @@ Rules:
           {/* College badge (visible when program is active) */}
           {activeCollege && (
             <div className="isla-hero__college-badge">
-              <span className="isla-hero__college-badge-icon">{activeCollege.icon}</span>
+              <img src={activeCollege.icon} alt="" className="isla-hero__college-badge-icon" />
               {activeCollege.shortName}
             </div>
           )}

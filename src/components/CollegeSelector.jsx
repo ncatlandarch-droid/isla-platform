@@ -68,7 +68,7 @@ export default function CollegeSelector({ onSelectProgram }) {
                 className="college-card__header"
                 onClick={() => handleCollegeClick(college.id)}
               >
-                <span className="college-card__icon">{college.icon}</span>
+                <img src={college.icon} alt={college.shortName} className="college-card__icon-img" />
                 <div className="college-card__info">
                   <span className="college-card__name">{college.shortName}</span>
                   <span className="college-card__fullname">{college.name}</span>

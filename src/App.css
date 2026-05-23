@@ -318,6 +318,21 @@ body {
   cursor: pointer;
   transition: opacity 0.2s;
 }
+
+.isla-hero__logo-left {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  flex-shrink: 0;
+}
+
+.isla-hero__separator {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, transparent, var(--aggie-gold), transparent);
+  flex-shrink: 0;
+}
 .isla-hero__brand:hover { opacity: 0.85; }
 
 .isla-hero__avatar {
@@ -441,7 +456,10 @@ body {
   letter-spacing: 0.05em;
 }
 .isla-hero__college-badge-icon {
-  font-size: 14px;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(10);
 }
 .isla-hero__back-btn {
   display: flex;
@@ -558,15 +576,13 @@ body {
 .college-card__header:hover {
   background: rgba(0, 0, 0, 0.015);
 }
-.college-card__icon {
-  font-size: 1.75rem;
-  flex-shrink: 0;
+.college-card__icon-img {
   width: 48px;
   height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--college-color) 8%, white);
+  object-fit: contain;
+  flex-shrink: 0;
+  padding: 6px;
+  background: color-mix(in srgb, var(--college-color) 10%, white);
   border-radius: var(--radius-md);
 }
 .college-card__info {
