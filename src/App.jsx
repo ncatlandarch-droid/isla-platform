@@ -85,6 +85,7 @@ export default function App() {
   // --- Program Selection (modular architecture) ---
   const [activeProgram, setActiveProgram] = useState(null);   // null | 'lare' | 'nclex' etc.
   const [activeCollege, setActiveCollege] = useState(null);   // null | college object
+  const [userRole, setUserRole] = useState('student');        // 'student' | 'admin'
 
   // --- App Navigation ---
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -1338,7 +1339,7 @@ Rules:
       {/* ============ TOP HEADER BAR (universal — same for ALL programs) ============ */}
       <header className="isla-hero">
         <div className="isla-hero__brand" onClick={activeProgram ? handleBackToPrograms : undefined} style={activeProgram ? { cursor: 'pointer' } : {}}>
-          <img src={UNIVERSITY.logo} alt={UNIVERSITY.shortName} className="isla-hero__logo-left" />
+          <img src="/ncat-at-logo.png" alt="NC A&T" className="isla-hero__logo-left" />
           <div className="isla-hero__separator" />
           <img src={UNIVERSITY.mascot.avatar} alt={UNIVERSITY.mascot.name} className="isla-hero__avatar" onError={(e) => { e.target.style.display = 'none'; }} />
           <div>
@@ -1348,12 +1349,7 @@ Rules:
               <span className="isla-hero__gold">L</span>icensure{' '}
               <span className="isla-hero__gold">A</span>ssistant
             </h1>
-            <span className="isla-hero__subtitle">
-              {activeProgram && activeCollege
-                ? `${activeCollege.programs.find(p => p.id === activeProgram)?.exam || activeProgram.toUpperCase()} EXAM PREP · ${activeCollege.shortName}`
-                : UNIVERSITY.tagline
-              }
-            </span>
+            <span className="isla-hero__subtitle">Universal Credentialing Engine</span>
           </div>
         </div>
         <div className="isla-hero__actions">
@@ -1370,11 +1366,19 @@ Rules:
               {activeCollege.shortName}
             </div>
           )}
+          {/* Role Switcher (EMMA-style) */}
+          <div className="isla-hero__role-switcher">
+            <select
+              value={userRole}
+              onChange={(e) => setUserRole(e.target.value)}
+              className="isla-hero__role-select"
+            >
+              <option value="student">👩‍🎓 Student</option>
+              <option value="admin">🔧 Admin</option>
+            </select>
+          </div>
           <div className="isla-hero__user">
-            <div style={{ textAlign: 'right' }}>
-              <p className="isla-hero__user-name">{userData.name}</p>
-              <p className="isla-hero__user-id">ID: {firebaseUser?.uid ? firebaseUser.uid.substring(0, 8).toUpperCase() : 'LOCAL-US'}</p>
-            </div>
+            <p className="isla-hero__user-name">{userData.name}</p>
             <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', transition: 'all 0.2s' }} title="Sign Out">
               <LogOut size={20} />
             </button>
