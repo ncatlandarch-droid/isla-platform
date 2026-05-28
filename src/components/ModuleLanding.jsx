@@ -1,6 +1,6 @@
 /**
  * ModuleLanding — Landing page shown when a user clicks a module card
- * Features: Perry voice intro, embedded video player with switchable topics, topic overview, activity picker
+ * Features: ISLA voice intro, embedded video player with switchable topics, topic overview, activity picker
  */
 import React, { useEffect, useState } from 'react';
 import {
@@ -162,16 +162,16 @@ export default function ModuleLanding({
           </div>
         </div>
 
-        {/* Perry intro text */}
-        <div className="ml-perry-intro">
-          <div className="ml-perry-intro__avatar">
+        {/* ISLA intro text */}
+        <div className="ml-isla-intro">
+          <div className="ml-isla-intro__avatar">
             <img
-              src="Perry.png"
+              src="/isla-avatar.jpg"
               alt="ISLA"
-              onError={(e) => { e.target.src = "https://placehold.co/80/004684/FDB927?text=P"; }}
+              onError={(e) => { e.target.src = "https://placehold.co/80/004684/FDB927?text=I"; }}
             />
           </div>
-          <div className="ml-perry-intro__bubble">
+          <div className="ml-isla-intro__bubble">
             <p>{sectionIntros[sectionId]}</p>
           </div>
         </div>

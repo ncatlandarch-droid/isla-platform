@@ -33,7 +33,7 @@ import loadModule from './data/moduleLoader.js';
 import questionEngine from './engine/QuestionEngine.js';
 import spacedRepetition from './engine/SpacedRepetition.js';
 import performanceTracker from './engine/PerformanceTracker.js';
-import islaVoice from './engine/islaVoice.js';
+import islaVoice from './engine/IslaVoice.js';
 
 // === NEW: Adaptive Learning Components ===
 import AdaptiveQuiz from './components/AdaptiveQuiz.jsx';
@@ -265,7 +265,7 @@ export default function App() {
     };
   }, []);
 
-  // --- Perry Landing Page Welcome (before login) ---
+  // --- ISLA Landing Page Welcome (before login) ---
   const [hasPlayedLanding, setHasPlayedLanding] = useState(false);
   useEffect(() => {
     if (!isLoggedIn && !hasPlayedLanding && !islaVoice.isMuted) {
@@ -604,15 +604,6 @@ Rules:
     if (points.length < 2) return;
     triggerAchievement();
     setFeedback({ type: 'success', msg: `Masterful! 5.0% slope achieved. Positive drainage confirmed toward catch basin.` });
-
-    if (db && userId && userId !== 'local-user') {
-      const appId = typeof __app_id !== 'undefined' ? __app_id : 'lare-lab-demo';
-      const userDocRef = doc(db, 'artifacts', appId, 'users', userId, 'profile', 'stats');
-      updateDoc(userDocRef, {
-        solved: (progress.solved || 0) + 1,
-        mastery: Math.min((progress.mastery || 0) + 0.5, 100)
-      });
-    }
     recordCorrectAnswer();
   };
 
@@ -733,7 +724,7 @@ Rules:
             {/* ISLA welcome on landing */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
               <img
-                src="/Perry.png"
+                src="/isla-avatar.jpg"
                 alt="ISLA"
                 style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${AGGIE_GOLD}`, objectFit: 'cover' }}
                 onError={(e) => { e.target.style.display = 'none'; }}
@@ -893,7 +884,7 @@ Rules:
           <div className="sidebar__avatar-wrap">
             <div className={`sidebar__avatar ${isSpeaking ? 'sidebar__avatar--speaking' : ''}`}>
               <img
-                src="Perry.png"
+                src="/isla-avatar.jpg"
                 alt="ISLA"
                 onError={(e) => { e.target.src = "https://placehold.co/400x400/004684/FDB927?text=ISLA"; }}
               />
@@ -948,7 +939,7 @@ Rules:
       ) : (
         <div className="sidebar__collapsed-icons">
           <div className="sidebar__collapsed-avatar">
-            <img src="Perry.png" alt="ISLA" onError={(e) => { e.target.src = "https://placehold.co/100/004684/FDB927?text=I"; }} />
+            <img src="/isla-avatar.jpg" alt="ISLA" onError={(e) => { e.target.src = "https://placehold.co/100/004684/FDB927?text=I"; }} />
           </div>
           <div className="sidebar__collapsed-nav">
             <BarChart3 size={28} />
@@ -1305,7 +1296,7 @@ Rules:
               setSelectedState(e.target.value);
               if (e.target.value) {
                 setChatHistory(prev => [...prev, {
-                  role: 'perry',
+                  role: 'isla',
                   text: `Ah, ${e.target.value}. A fine jurisdiction. Their board is known for technical rigor. Let's get you prepared.`
                 }]);
               }
@@ -1353,10 +1344,10 @@ Rules:
               )}
             </div>
 
-            <div className="perry-panel">
+            <div className="isla-panel">
               <Sparkles color={AGGIE_GOLD} size={48} style={{ marginBottom: '2rem' }} />
-              <h4 className="perry-panel__label">ISLA's Guidance</h4>
-              <p className="perry-panel__quote" style={{ flex: 1 }}>
+              <h4 className="isla-panel__label">ISLA's Guidance</h4>
+              <p className="isla-panel__quote" style={{ flex: 1 }}>
                 "{STATE_REQUIREMENTS[selectedState].extra}"
               </p>
               {STATE_REQUIREMENTS[selectedState].examInfo && (

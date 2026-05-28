@@ -14,7 +14,7 @@ const UNIVERSITY = {
   logo: '/ncat-logo.png',
   mascot: {
     name: 'ISLA',
-    avatar: '/Perry.png',
+    avatar: '/isla-avatar.jpg',
     role: 'Your Study Coach',
   },
   colors: {

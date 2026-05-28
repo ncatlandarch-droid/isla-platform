@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft, ChevronRight, CheckCircle2, XCircle, Award,
   Zap, Target, BookOpen, Play, Clock, TrendingUp, Info,
-  ChevronDown, ChevronUp, Lightbulb, AlertTriangle
+  ChevronDown, ChevronUp, Lightbulb, AlertTriangle, Sparkles
 } from 'lucide-react';
 import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
 

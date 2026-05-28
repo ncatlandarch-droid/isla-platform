@@ -69,17 +69,18 @@ class IslaVoice {
     try {
       const oldVal = localStorage.getItem('lare-perry-muted');
       if (oldVal !== null) {
-        localStorage.setItem('isla-voice-muted', oldVal);
+        // Migrate old key to new ISLA key
+        localStorage.setItem('isla-muted', oldVal);
         localStorage.removeItem('lare-perry-muted');
       }
-      this.isMuted = localStorage.getItem('isla-voice-muted') === 'true';
+      this.isMuted = localStorage.getItem('isla-muted') === 'true';
     } catch (e) {}
   }
 
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) this.stop();
-    try { localStorage.setItem('isla-voice-muted', String(this.isMuted)); } catch (e) {}
+    try { localStorage.setItem('isla-muted', String(this.isMuted)); } catch (e) {}
     return this.isMuted;
   }
 
