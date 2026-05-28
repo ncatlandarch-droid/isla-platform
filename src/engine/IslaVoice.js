@@ -20,12 +20,9 @@ const ISLA_VOICE = 'Aoede';
  * Pre-recorded with Aoede voice (calm, warm, soothing female)
  */
 const STATIC_AUDIO = {
+  // ─── Universal ────────────────────────────────
   'landing':       '/audio/isla/landing.wav',
   'welcome':       '/audio/isla/welcome.wav',
-  'intro-1':       '/audio/isla/intro-1.wav',
-  'intro-2':       '/audio/isla/intro-2.wav',
-  'intro-3':       '/audio/isla/intro-3.wav',
-  'intro-4':       '/audio/isla/intro-4.wav',
   'quiz-great':    '/audio/isla/quiz-great.wav',
   'quiz-good':     '/audio/isla/quiz-good.wav',
   'quiz-try':      '/audio/isla/quiz-try.wav',
@@ -37,6 +34,26 @@ const STATIC_AUDIO = {
   'chat-section1': '/audio/isla/chat-section1.wav',
   'chat-section4': '/audio/isla/chat-section4.wav',
   'chat-hello':    '/audio/isla/chat-hello.wav',
+
+  // ─── LARE Section Intros ──────────────────────
+  'intro-1':       '/audio/isla/intro-1.wav',
+  'intro-2':       '/audio/isla/intro-2.wav',
+  'intro-3':       '/audio/isla/intro-3.wav',
+  'intro-4':       '/audio/isla/intro-4.wav',
+
+  // ─── Praxis Reading 5713 Section Intros ───────
+  'praxis-reading-intro-1': '/audio/isla/praxis-reading-intro-1.wav',
+  'praxis-reading-intro-2': '/audio/isla/praxis-reading-intro-2.wav',
+  'praxis-reading-intro-3': '/audio/isla/praxis-reading-intro-3.wav',
+
+  // ─── Praxis Writing 5723 Section Intros ───────
+  'praxis-writing-intro-1': '/audio/isla/praxis-writing-intro-1.wav',
+  'praxis-writing-intro-2': '/audio/isla/praxis-writing-intro-2.wav',
+
+  // ─── Praxis Math 5733 Section Intros ──────────
+  'praxis-math-intro-1':    '/audio/isla/praxis-math-intro-1.wav',
+  'praxis-math-intro-2':    '/audio/isla/praxis-math-intro-2.wav',
+  'praxis-math-intro-3':    '/audio/isla/praxis-math-intro-3.wav',
 };
 
 class IslaVoice {

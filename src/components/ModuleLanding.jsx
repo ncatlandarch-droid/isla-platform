@@ -50,23 +50,25 @@ export default function ModuleLanding({
     setTimeout(() => setResetDone(false), 2000);
   };
 
-  // ISLA speaks the section intro on mount
-  // LARE: instant pre-recorded WAV  |  Praxis: live TTS with exam-specific text
+  // ISLA speaks the section intro on mount — all modules use pre-recorded WAVs
+  // LARE: intro-{N}  |  Praxis: praxis-{module}-intro-{N}
   useEffect(() => {
     islaVoice.stop();
-    const isLare = activeProgram === 'lare';
     
-    if (isLare) {
-      // LARE has pre-recorded WAVs for each section
-      const key = `intro-${sectionId}`;
-      if (playIslaStatic) playIslaStatic(key);
-      else islaVoice.playStatic(key);
+    // Build the audio key based on active module
+    const programKeyMap = {
+      'lare': `intro-${sectionId}`,
+      'praxis-core-reading': `praxis-reading-intro-${sectionId}`,
+      'praxis-core-writing': `praxis-writing-intro-${sectionId}`,
+      'praxis-core-math': `praxis-math-intro-${sectionId}`,
+    };
+    
+    const audioKey = programKeyMap[activeProgram] || `intro-${sectionId}`;
+    
+    if (playIslaStatic) {
+      playIslaStatic(audioKey);
     } else {
-      // Praxis: speak the section intro text via live TTS (Aoede voice)
-      const introText = sectionIntros?.[sectionId];
-      if (introText) {
-        islaVoice.speak(introText);
-      }
+      islaVoice.playStatic(audioKey);
     }
     
     const timer = setTimeout(() => setIntroDone(true), 1500);
