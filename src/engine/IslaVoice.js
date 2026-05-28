@@ -72,14 +72,20 @@ class IslaVoice {
     this._dynamicCache = new Map();  // text → Blob for dynamic TTS caching
 
     try {
-      this.isMuted = localStorage.getItem('lare-perry-muted') === 'true';
+      // Migrate from old key name
+      const oldVal = localStorage.getItem('lare-perry-muted');
+      if (oldVal !== null) {
+        localStorage.setItem('isla-voice-muted', oldVal);
+        localStorage.removeItem('lare-perry-muted');
+      }
+      this.isMuted = localStorage.getItem('isla-voice-muted') === 'true';
     } catch (e) {}
   }
 
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) this.stop();
-    try { localStorage.setItem('lare-perry-muted', String(this.isMuted)); } catch (e) {}
+    try { localStorage.setItem('isla-voice-muted', String(this.isMuted)); } catch (e) {}
     return this.isMuted;
   }
 
@@ -353,7 +359,5 @@ class IslaVoice {
   }
 }
 
-// Keep the export name as perryVoice for backward compat in imports,
-// but the class is now IslaVoice with Kore voice
-const perryVoice = new IslaVoice();
-export default perryVoice;
+const islaVoice = new IslaVoice();
+export default islaVoice;

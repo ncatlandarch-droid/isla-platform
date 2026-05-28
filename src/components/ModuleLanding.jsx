@@ -8,7 +8,7 @@ import {
   ExternalLink, Zap, Volume2, VolumeX, RotateCcw, Timer
 } from 'lucide-react';
 import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
-import perryVoice from '../engine/PerryVoice.js';
+import islaVoice from '../engine/islaVoice.js';
 
 /** Extract YouTube video ID from URL */
 const getYouTubeId = (url) => {
@@ -31,7 +31,7 @@ export default function ModuleLanding({
   onStartExam,
   performanceTracker,
   spacedRepetition,
-  playPerryStatic,
+  playIslaStatic,
   examSections = [],
   sectionIntros = {}
 }) {
@@ -51,12 +51,12 @@ export default function ModuleLanding({
 
   // Perry speaks the intro on mount — instant from static pre-recorded file
   useEffect(() => {
-    perryVoice.stop();
+    islaVoice.stop();
     const key = `intro-${sectionId}`;
-    if (playPerryStatic) playPerryStatic(key);
-    else perryVoice.playStatic(key);
+    if (playIslaStatic) playIslaStatic(key);
+    else islaVoice.playStatic(key);
     const timer = setTimeout(() => setIntroDone(true), 1500);
-    return () => { clearTimeout(timer); perryVoice.stop(); };
+    return () => { clearTimeout(timer); islaVoice.stop(); };
   }, [sectionId]);
 
   // Reset active video when section changes
@@ -176,7 +176,7 @@ export default function ModuleLanding({
                 className={`ml-video-tab ${i === activeVideoIndex ? 'ml-video-tab--active' : ''} ${!v.url ? 'ml-video-tab--disabled' : ''}`}
                 onClick={() => {
                   if (v.url) {
-                    perryVoice.stop();
+                    islaVoice.stop();
                     setActiveVideoIndex(i);
                   }
                 }}
@@ -209,7 +209,7 @@ export default function ModuleLanding({
                     src={activeVideo.url}
                     controls
                     preload="metadata"
-                    onPlay={() => perryVoice.stop()}
+                    onPlay={() => islaVoice.stop()}
                     onError={(e) => {
                       // If video can't play inline, open in new tab
                       e.target.parentElement.innerHTML = `
@@ -345,4 +345,5 @@ export default function ModuleLanding({
     </div>
   );
 }
+
 

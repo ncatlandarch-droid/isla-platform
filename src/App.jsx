@@ -20,7 +20,7 @@ import { isCanvasConfigured, startCanvasLogin, clearCanvasSession } from './serv
 
 import { EXAM_SECTIONS as LARE_EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from './data/examSections.js';
 import { QUESTION_BANK as LARE_QUESTION_BANK } from './data/questionBank.js';
-import { FLASHCARD_DATA as LARE_FLASHCARD_DATA, PERRY_INTROS as LARE_INTROS } from './data/flashcardData.js';
+import { FLASHCARD_DATA as LARE_FLASHCARD_DATA, SECTION_INTROS as LARE_INTROS } from './data/flashcardData.js';
 import { generateQuestion, getAskedQuestions, recordAskedQuestion } from './engine/questionGenerator.js';
 import { STATE_REQUIREMENTS, CLARB_FEES } from './data/stateRequirements.js';
 import { GLOSSARY_DATA as LARE_GLOSSARY_DATA } from './data/glossaryData.js';
@@ -33,7 +33,7 @@ import loadModule from './data/moduleLoader.js';
 import questionEngine from './engine/QuestionEngine.js';
 import spacedRepetition from './engine/SpacedRepetition.js';
 import performanceTracker from './engine/PerformanceTracker.js';
-import perryVoice from './engine/PerryVoice.js';
+import islaVoice from './engine/islaVoice.js';
 
 // === NEW: Adaptive Learning Components ===
 import AdaptiveQuiz from './components/AdaptiveQuiz.jsx';
@@ -120,7 +120,7 @@ export default function App() {
   const QUESTION_BANK = moduleData?.QUESTION_BANK || LARE_QUESTION_BANK;
   const FLASHCARD_DATA = moduleData?.FLASHCARD_DATA || LARE_FLASHCARD_DATA;
   const GLOSSARY_DATA = moduleData?.GLOSSARY_DATA || LARE_GLOSSARY_DATA;
-  const PERRY_INTROS = moduleData?.SECTION_INTROS || LARE_INTROS;
+  const SECTION_INTROS = moduleData?.SECTION_INTROS || LARE_INTROS;
 
   // --- App Navigation ---
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -129,7 +129,7 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isMuted, setIsMuted] = useState(perryVoice.isMuted);
+  const [isMuted, setIsMuted] = useState(islaVoice.isMuted);
 
   // --- User Data (derived from Firebase user) ---
   const userData = firebaseUser
@@ -256,21 +256,21 @@ export default function App() {
 
   // --- Voice Engine Setup ---
   useEffect(() => {
-    perryVoice.onSpeakStart = () => setIsSpeaking(true);
-    perryVoice.onSpeakEnd = () => setIsSpeaking(false);
+    islaVoice.onSpeakStart = () => setIsSpeaking(true);
+    islaVoice.onSpeakEnd = () => setIsSpeaking(false);
     return () => {
-      perryVoice.onSpeakStart = null;
-      perryVoice.onSpeakEnd = null;
-      perryVoice.stop();
+      islaVoice.onSpeakStart = null;
+      islaVoice.onSpeakEnd = null;
+      islaVoice.stop();
     };
   }, []);
 
   // --- Perry Landing Page Welcome (before login) ---
   const [hasPlayedLanding, setHasPlayedLanding] = useState(false);
   useEffect(() => {
-    if (!isLoggedIn && !hasPlayedLanding && !perryVoice.isMuted) {
+    if (!isLoggedIn && !hasPlayedLanding && !islaVoice.isMuted) {
       const landingTimer = setTimeout(() => {
-        playPerryStatic('landing');
+        playIslaStatic('landing');
         setHasPlayedLanding(true);
       }, 1200);
       return () => clearTimeout(landingTimer);
@@ -280,10 +280,10 @@ export default function App() {
   // --- ISLA Welcome (static pre-recorded audio + bark, after login) ---
   const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
   useEffect(() => {
-    if (isLoggedIn && !hasPlayedWelcome && !perryVoice.isMuted) {
+    if (isLoggedIn && !hasPlayedWelcome && !islaVoice.isMuted) {
       const welcomeTimer = setTimeout(() => {
         islaBark(0.4);  // 🐶 greeting bark!
-        playPerryStatic('welcome');
+        playIslaStatic('welcome');
         setHasPlayedWelcome(true);
       }, 800);
       return () => clearTimeout(welcomeTimer);
@@ -405,25 +405,25 @@ export default function App() {
   };
 
   const toggleMute = () => {
-    const muted = perryVoice.toggleMute();
+    const muted = islaVoice.toggleMute();
     setIsMuted(muted);
   };
 
   // Track last played static key for replay
   const [lastPlayedKey, setLastPlayedKey] = useState(null);
-  const playPerryStatic = (key) => {
+  const playIslaStatic = (key) => {
     setLastPlayedKey(key);
-    perryVoice.playStatic(key);
+    islaVoice.playStatic(key);
   };
-  const replayPerry = () => {
-    if (lastPlayedKey) perryVoice.playStatic(lastPlayedKey);
+  const replayIsla = () => {
+    if (lastPlayedKey) islaVoice.playStatic(lastPlayedKey);
   };
-  const stopPerry = () => {
-    perryVoice.stop();
+  const stopIsla = () => {
+    islaVoice.stop();
     setIsSpeaking(false);
   };
 
-  const sendMessageToPerry = async (e) => {
+  const sendMessageToIsla = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
@@ -494,7 +494,7 @@ Rules:
         else updated.push({ role: 'isla', text: reply, timestamp: Date.now() });
         return updated;
       });
-      perryVoice.speak(reply);
+      islaVoice.speak(reply);
     } catch (err) {
       // Fallback to smart keyword matching if API fails — use pre-recorded audio
       const msg = userMsg.toLowerCase();
@@ -512,7 +512,7 @@ Rules:
         else updated.push({ role: 'isla', text: reply, timestamp: Date.now() });
         return updated;
       });
-      playPerryStatic(audioKey);
+      playIslaStatic(audioKey);
     }
   };
 
@@ -657,7 +657,7 @@ Rules:
               <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>ISLA</span>
               {isSpeaking ? (
                 <button
-                  onClick={stopPerry}
+                  onClick={stopIsla}
                   className="sidebar__stop-btn"
                   title="Stop ISLA"
                 >
@@ -665,7 +665,7 @@ Rules:
                 </button>
               ) : (
                 <button
-                  onClick={() => playPerryStatic('landing')}
+                  onClick={() => playIslaStatic('landing')}
                   className="sidebar__play-btn"
                   title="Play welcome"
                 >
@@ -823,7 +823,7 @@ Rules:
               </button>
               {isSpeaking ? (
                 <button
-                  onClick={stopPerry}
+                  onClick={stopIsla}
                   className="sidebar__stop-btn"
                   title="Stop ISLA"
                 >
@@ -831,7 +831,7 @@ Rules:
                 </button>
               ) : lastPlayedKey && !isMuted ? (
                 <button
-                  onClick={replayPerry}
+                  onClick={replayIsla}
                   className="sidebar__play-btn"
                   title="Replay ISLA"
                 >
@@ -849,7 +849,7 @@ Rules:
             ))}
           </div>
 
-          <form onSubmit={sendMessageToPerry} className="sidebar__chat-input-wrap">
+          <form onSubmit={sendMessageToIsla} className="sidebar__chat-input-wrap">
             <div className="sidebar__chat-input-group">
               <input
                 value={chatInput}
@@ -1560,7 +1560,7 @@ Rules:
               sectionId={adaptiveSection}
               performanceTracker={performanceTracker}
               spacedRepetition={spacedRepetition}
-              playPerryStatic={playPerryStatic}
+              playIslaStatic={playIslaStatic}
               onBack={() => navigateTo('dashboard')}
               onStartQuiz={() => startAdaptiveQuiz(adaptiveSection)}
               onStartFlashcards={() => setViewMode('flashcards')}
@@ -1568,7 +1568,7 @@ Rules:
               onStartGlossary={() => setViewMode('glossary-game')}
               onStartExam={() => setViewMode('exam-sim')}
               examSections={EXAM_SECTIONS}
-              sectionIntros={PERRY_INTROS}
+              sectionIntros={SECTION_INTROS}
             />
           )}
 
@@ -1616,11 +1616,11 @@ Rules:
                 const pct = Math.round((results.score / results.total) * 100);
                 if (pct >= 80) {
                   triggerAchievement();
-                  playPerryStatic('quiz-great');
+                  playIslaStatic('quiz-great');
                 } else if (pct >= 60) {
-                  playPerryStatic('quiz-good');
+                  playIslaStatic('quiz-good');
                 } else {
-                  playPerryStatic('quiz-try');
+                  playIslaStatic('quiz-try');
                 }
               }}
               focusTopic={adaptiveFocusTopic}
@@ -1639,11 +1639,11 @@ Rules:
                 const pct = Math.round((results.score / results.total) * 100);
                 if (pct >= 80) {
                   triggerAchievement();
-                  playPerryStatic('exam-great');
+                  playIslaStatic('exam-great');
                 } else if (pct >= 65) {
-                  playPerryStatic('exam-good');
+                  playIslaStatic('exam-good');
                 } else {
-                  playPerryStatic('exam-try');
+                  playIslaStatic('exam-try');
                 }
               }}
               examSections={EXAM_SECTIONS}
@@ -1743,3 +1743,5 @@ Rules:
     </>
   );
 }
+
+

@@ -12,7 +12,7 @@
 // (Vite requires static import paths for tree-shaking)
 import * as lareModule from './examSections.js';
 import { QUESTION_BANK as LARE_QB } from './questionBank.js';
-import { FLASHCARD_DATA as LARE_FC, PERRY_INTROS as LARE_INTROS } from './flashcardData.js';
+import { FLASHCARD_DATA as LARE_FC, SECTION_INTROS as LARE_INTROS } from './flashcardData.js';
 import { GLOSSARY_DATA as LARE_GL } from './glossaryData.js';
 
 // Praxis Core modules
