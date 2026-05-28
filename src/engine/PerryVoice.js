@@ -1,23 +1,46 @@
 /**
- * PerryVoice — Hybrid Static + Gemini TTS for Coach Perry
+ * IslaVoice — Hybrid Static + Gemini TTS for ISLA
  * 
  * Architecture:
  *  - SCRIPTED lines → static pre-recorded WAV files (instant, consistent, zero API calls)
  *  - DYNAMIC chat responses → Gemini TTS API (only place with network delay)
  *  - Never falls back to robotic browser TTS
  *
- * Voice: Charon (Gemini) — deep, warm, confident masculine coaching voice
+ * Voice: Kore (Gemini) — warm, confident, versatile female coaching voice
+ * Pronunciation: ISLA = /ˈis.la/ (EES-lah)
  */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
-const PERRY_VOICE = 'Charon';
+const ISLA_VOICE = 'Kore';
 
 /**
  * Map of scripted text keys → static audio file paths.
- * These WAV files are pre-generated and served from /audio/perry/
+ * These WAV files are pre-generated and served from /audio/isla/
+ * Falls back to /audio/perry/ if isla files don't exist yet.
  */
 const STATIC_AUDIO = {
+  'landing':       '/audio/isla/landing.wav',
+  'welcome':       '/audio/isla/welcome.wav',
+  'intro-1':       '/audio/isla/intro-1.wav',
+  'intro-2':       '/audio/isla/intro-2.wav',
+  'intro-3':       '/audio/isla/intro-3.wav',
+  'intro-4':       '/audio/isla/intro-4.wav',
+  'quiz-great':    '/audio/isla/quiz-great.wav',
+  'quiz-good':     '/audio/isla/quiz-good.wav',
+  'quiz-try':      '/audio/isla/quiz-try.wav',
+  'exam-great':    '/audio/isla/exam-great.wav',
+  'exam-good':     '/audio/isla/exam-good.wav',
+  'exam-try':      '/audio/isla/exam-try.wav',
+  'chat-default':  '/audio/isla/chat-default.wav',
+  'chat-grading':  '/audio/isla/chat-grading.wav',
+  'chat-section1': '/audio/isla/chat-section1.wav',
+  'chat-section4': '/audio/isla/chat-section4.wav',
+  'chat-hello':    '/audio/isla/chat-hello.wav',
+};
+
+// Fallback paths in case isla/ WAVs haven't been generated yet
+const FALLBACK_AUDIO = {
   'landing':       '/audio/perry/landing.wav',
   'welcome':       '/audio/perry/welcome.wav',
   'intro-1':       '/audio/perry/intro-1.wav',
@@ -37,7 +60,7 @@ const STATIC_AUDIO = {
   'chat-hello':    '/audio/perry/chat-hello.wav',
 };
 
-class PerryVoice {
+class IslaVoice {
   constructor() {
     this.isSpeaking = false;
     this.isMuted = false;
@@ -71,13 +94,15 @@ class PerryVoice {
 
   /**
    * Play a pre-recorded scripted line by key. Instant — no API call.
+   * Falls back to old perry/ directory if isla/ WAVs don't exist yet.
    * @param {string} key - One of the STATIC_AUDIO keys (e.g. 'welcome', 'intro-1')
    */
   playStatic(key) {
     if (this.isMuted) return;
     const audioPath = STATIC_AUDIO[key];
+    const fallbackPath = FALLBACK_AUDIO[key];
     if (!audioPath) {
-      console.warn(`[PerryVoice] No static audio for key: "${key}"`);
+      console.warn(`[IslaVoice] No static audio for key: "${key}"`);
       return;
     }
 
@@ -94,16 +119,52 @@ class PerryVoice {
       this.currentAudio = null;
       if (!this._isStale(callId)) this._setNotSpeaking();
     };
-    audio.onerror = (e) => {
-      console.warn(`[PerryVoice] Static playback error for "${key}":`, e);
-      this.currentAudio = null;
-      this._setNotSpeaking();
+    audio.onerror = () => {
+      // Try fallback to perry/ directory
+      if (fallbackPath && audioPath !== fallbackPath) {
+        console.warn(`[IslaVoice] isla/ WAV not found for "${key}", falling back to perry/`);
+        const fallback = new Audio(fallbackPath);
+        this.currentAudio = fallback;
+        fallback.onended = () => {
+          this.currentAudio = null;
+          if (!this._isStale(callId)) this._setNotSpeaking();
+        };
+        fallback.onerror = () => {
+          this.currentAudio = null;
+          this._setNotSpeaking();
+        };
+        fallback.play().catch(() => {
+          this.currentAudio = null;
+          this._setNotSpeaking();
+        });
+      } else {
+        this.currentAudio = null;
+        this._setNotSpeaking();
+      }
     };
 
     audio.play().catch(e => {
-      console.warn(`[PerryVoice] Static play() rejected for "${key}":`, e.message);
-      this.currentAudio = null;
-      this._setNotSpeaking();
+      console.warn(`[IslaVoice] Static play() rejected for "${key}":`, e.message);
+      // Try fallback
+      if (fallbackPath && audioPath !== fallbackPath) {
+        const fallback = new Audio(fallbackPath);
+        this.currentAudio = fallback;
+        fallback.onended = () => {
+          this.currentAudio = null;
+          if (!this._isStale(callId)) this._setNotSpeaking();
+        };
+        fallback.onerror = () => {
+          this.currentAudio = null;
+          this._setNotSpeaking();
+        };
+        fallback.play().catch(() => {
+          this.currentAudio = null;
+          this._setNotSpeaking();
+        });
+      } else {
+        this.currentAudio = null;
+        this._setNotSpeaking();
+      }
     });
   }
 
@@ -134,19 +195,19 @@ class PerryVoice {
     // Check dynamic cache first
     const cachedBlob = this._dynamicCache.get(text);
     if (cachedBlob) {
-      console.log('[PerryVoice] Playing dynamic from cache');
+      console.log('[IslaVoice] Playing dynamic from cache');
       try {
         await this._playBlob(cachedBlob, callId);
         if (!this._isStale(callId)) this._setNotSpeaking();
         return;
       } catch (e) {
-        console.warn('[PerryVoice] Cache playback failed:', e.message);
+        console.warn('[IslaVoice] Cache playback failed:', e.message);
       }
     }
 
     // Gemini TTS API — only for dynamic chat responses
     if (!GEMINI_API_KEY) {
-      console.warn('[PerryVoice] No Gemini API key — silent');
+      console.warn('[IslaVoice] No Gemini API key — silent');
       this._setNotSpeaking();
       return;
     }
@@ -161,7 +222,7 @@ class PerryVoice {
       if (!this._isStale(callId)) this._setNotSpeaking();
       return;
     } catch (err) {
-      console.warn(`[PerryVoice] Gemini TTS error: ${err.message}`);
+      console.warn(`[IslaVoice] Gemini TTS error: ${err.message}`);
     }
 
     // Silent fail — no robotic voice, ever
@@ -175,7 +236,7 @@ class PerryVoice {
     if (!GEMINI_API_KEY) throw new Error('No API key');
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-    const styledText = `Say in a warm, confident, encouraging male coaching voice: "${text}"`;
+    const styledText = `Say in a warm, confident, encouraging female coaching voice: "${text}"`;
 
     const response = await Promise.race([
       fetch(url, {
@@ -187,7 +248,7 @@ class PerryVoice {
             responseModalities: ['AUDIO'],
             speechConfig: {
               voiceConfig: {
-                prebuiltVoiceConfig: { voiceName: PERRY_VOICE }
+                prebuiltVoiceConfig: { voiceName: ISLA_VOICE }
               }
             }
           }
@@ -284,5 +345,7 @@ class PerryVoice {
   }
 }
 
-const perryVoice = new PerryVoice();
+// Keep the export name as perryVoice for backward compat in imports,
+// but the class is now IslaVoice with Kore voice
+const perryVoice = new IslaVoice();
 export default perryVoice;

@@ -151,7 +151,7 @@ export default function ModuleLanding({
           <div className="ml-perry-intro__avatar">
             <img
               src="Perry.png"
-              alt="Coach Perry"
+              alt="ISLA"
               onError={(e) => { e.target.src = "https://placehold.co/80/004684/FDB927?text=P"; }}
             />
           </div>

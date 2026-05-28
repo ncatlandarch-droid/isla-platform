@@ -980,7 +980,7 @@ Rules:
             <div className="quiz-results__label">Questions Correct</div>
             <p style={{ fontSize: '1.125rem', fontWeight: 600, color: '#64748b', marginBottom: '2rem', maxWidth: '28rem', margin: '0 auto 2rem' }}>
               {quizScore === questions.length
-                ? "Perfect score! You've mastered this material. Coach Perry is proud."
+                ? "Perfect score! You've mastered this material. ISLA is so proud of you!"
                 : quizScore >= questions.length * 0.7
                   ? "Strong performance. Review the explanations for the ones you missed."
                   : "Keep studying — review the topic areas and try again. You've got this, Aggie."
@@ -1258,7 +1258,7 @@ Rules:
 
             <div className="perry-panel">
               <Sparkles color={AGGIE_GOLD} size={48} style={{ marginBottom: '2rem' }} />
-              <h4 className="perry-panel__label">Perry's Guidance</h4>
+              <h4 className="perry-panel__label">ISLA's Guidance</h4>
               <p className="perry-panel__quote" style={{ flex: 1 }}>
                 "{STATE_REQUIREMENTS[selectedState].extra}"
               </p>
