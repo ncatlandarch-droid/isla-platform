@@ -456,18 +456,31 @@ Rules:
 - Reference NC A&T pride when appropriate
 - If asked something outside landscape architecture, gently redirect to LARE topics`;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      const chatRequestBody = {
             system_instruction: { parts: [{ text: systemPrompt }] },
             contents: [...recentChat, { role: 'user', parts: [{ text: userMsg }] }],
             generationConfig: { maxOutputTokens: 600, temperature: 0.8 }
-          })
-        }
-      );
+          };
+
+      // Use server-side proxy (production) or direct API (local dev)
+      let response;
+      try {
+        response = await fetch('/.netlify/functions/gemini-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'gemini-2.5-flash', body: chatRequestBody })
+        });
+      } catch (proxyErr) {
+        // Fallback to direct API for local dev
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(chatRequestBody)
+          }
+        );
+      }
 
       if (!response.ok) throw new Error('API error');
       const data = await response.json();

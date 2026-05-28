@@ -10,7 +10,8 @@
  * Pronunciation: ISLA = /ˈis.la/ (EES-lah)
  */
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';  // Fallback for local dev only
+const GEMINI_PROXY = '/.netlify/functions/gemini-proxy';  // Server-side proxy (production)
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 const ISLA_VOICE = 'Aoede';
 
@@ -206,12 +207,7 @@ class IslaVoice {
     }
 
     // Gemini TTS API — only for dynamic chat responses
-    if (!GEMINI_API_KEY) {
-      console.warn('[IslaVoice] No Gemini API key — silent');
-      this._setNotSpeaking();
-      return;
-    }
-
+    // Uses server-side proxy (no API key in browser)
     try {
       const audioBlob = await this._fetchGeminiAudio(text);
       this._dynamicCache.set(text, audioBlob);
@@ -233,29 +229,41 @@ class IslaVoice {
    * Fetch audio from Gemini TTS API (dynamic chat only)
    */
   async _fetchGeminiAudio(text) {
-    if (!GEMINI_API_KEY) throw new Error('No API key');
+    const styledText = `Say in a calm, warm, soothing female coaching voice: "${text}"`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-    const styledText = `Say in a warm, confident, encouraging female coaching voice: "${text}"`;
+    const requestBody = {
+      contents: [{ parts: [{ text: styledText }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: ISLA_VOICE }
+          }
+        }
+      }
+    };
 
-    const response = await Promise.race([
-      fetch(url, {
+    // Try server-side proxy first (production), fall back to direct API (local dev)
+    let response;
+    try {
+      response = await Promise.race([
+        fetch(GEMINI_PROXY, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: TTS_MODEL, body: requestBody })
+        }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('Proxy timeout')), 20000))
+      ]);
+    } catch (proxyErr) {
+      // Fallback to direct API for local dev
+      if (!GEMINI_API_KEY) throw new Error('No proxy and no API key');
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: styledText }] }],
-          generationConfig: {
-            responseModalities: ['AUDIO'],
-            speechConfig: {
-              voiceConfig: {
-                prebuiltVoiceConfig: { voiceName: ISLA_VOICE }
-              }
-            }
-          }
-        })
-      }),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('Gemini TTS timeout (20s)')), 20000))
-    ]);
+        body: JSON.stringify(requestBody)
+      });
+    }
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => '');
