@@ -2,7 +2,7 @@
  * ISLA Voice WAV Generator
  * ═══════════════════════════════════════════════════════════════
  * Generates all 17 pre-recorded WAV files for ISLA using
- * Gemini TTS API with the Kore voice (warm, confident female).
+ * Gemini TTS API with the Aoede voice (calm, warm, soothing female).
  *
  * Run: node scripts/generate-isla-wavs.mjs
  *
@@ -31,7 +31,7 @@ function loadApiKey() {
 
 const API_KEY = loadApiKey();
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
-const ISLA_VOICE = 'Kore';  // Warm, confident, versatile female voice
+const ISLA_VOICE = 'Aoede';  // Calm, warm, soothing female voice (distinct from AVA=Kore, Tia=Sulafat)
 const OUTPUT_DIR = join(ROOT, 'public', 'audio', 'isla');
 
 // ─── Scripted Lines ─────────────────────────────────────────

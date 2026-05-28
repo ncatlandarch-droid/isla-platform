@@ -6,13 +6,13 @@
  *  - DYNAMIC chat responses → Gemini TTS API (only place with network delay)
  *  - Never falls back to robotic browser TTS
  *
- * Voice: Kore (Gemini) — warm, confident, versatile female coaching voice
+ * Voice: Aoede (Gemini) — calm, warm, soothing female coaching voice
  * Pronunciation: ISLA = /ˈis.la/ (EES-lah)
  */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
-const ISLA_VOICE = 'Kore';
+const ISLA_VOICE = 'Aoede';
 
 /**
  * Map of scripted text keys → static audio file paths.
