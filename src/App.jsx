@@ -45,6 +45,17 @@ import ExamSimulator from './components/ExamSimulator.jsx';
    SUB-COMPONENTS
    ============================================================ */
 
+// --- ISLA Bark Sound Effect ---
+const barkAudio = new Audio('/audio/isla-bark.wav');
+barkAudio.volume = 0.5;
+const islaBark = (volume = 0.5) => {
+  try {
+    barkAudio.volume = volume;
+    barkAudio.currentTime = 0;
+    barkAudio.play().catch(() => {});
+  } catch (e) { /* silent fail */ }
+};
+
 const ConfettiEffect = ({ active }) => {
   if (!active) return null;
   const colors = [AGGIE_GOLD, AGGIE_BLUE, '#ffffff', '#60a5fa', '#22c55e', '#f59e0b'];
@@ -236,11 +247,12 @@ export default function App() {
     }
   }, [isLoggedIn, hasPlayedLanding]);
 
-  // --- Perry Welcome (static pre-recorded audio, after login) ---
+  // --- ISLA Welcome (static pre-recorded audio + bark, after login) ---
   const [hasPlayedWelcome, setHasPlayedWelcome] = useState(false);
   useEffect(() => {
     if (isLoggedIn && !hasPlayedWelcome && !perryVoice.isMuted) {
       const welcomeTimer = setTimeout(() => {
+        islaBark(0.4);  // 🐶 greeting bark!
         playPerryStatic('welcome');
         setHasPlayedWelcome(true);
       }, 800);
@@ -315,6 +327,7 @@ export default function App() {
 
   const triggerAchievement = () => {
     setShowConfetti(true);
+    islaBark(0.6);  // 🐶 celebratory bark!
     setTimeout(() => setShowConfetti(false), 6000);
   };
 
@@ -441,6 +454,7 @@ Rules:
     // Record this question as asked
     recordAskedQuestion(quizSection, currentQ.text);
     if (optionIdx === currentQ.correct) {
+      islaBark(0.35);  // 🐶 quick happy bark on correct!
       setQuizScore(s => s + 1);
       recordCorrectAnswer();
     }
