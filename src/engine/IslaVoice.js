@@ -17,26 +17,26 @@ const ISLA_VOICE = 'Aoede';
 
 /**
  * Map of scripted text keys → static audio file paths.
- * TODO: Swap to /audio/isla/ once Aoede WAVs are generated
+ * Pre-recorded with Aoede voice (calm, warm, soothing female)
  */
 const STATIC_AUDIO = {
-  'landing':       '/audio/perry/landing.wav',
-  'welcome':       '/audio/perry/welcome.wav',
-  'intro-1':       '/audio/perry/intro-1.wav',
-  'intro-2':       '/audio/perry/intro-2.wav',
-  'intro-3':       '/audio/perry/intro-3.wav',
-  'intro-4':       '/audio/perry/intro-4.wav',
-  'quiz-great':    '/audio/perry/quiz-great.wav',
-  'quiz-good':     '/audio/perry/quiz-good.wav',
-  'quiz-try':      '/audio/perry/quiz-try.wav',
-  'exam-great':    '/audio/perry/exam-great.wav',
-  'exam-good':     '/audio/perry/exam-good.wav',
-  'exam-try':      '/audio/perry/exam-try.wav',
-  'chat-default':  '/audio/perry/chat-default.wav',
-  'chat-grading':  '/audio/perry/chat-grading.wav',
-  'chat-section1': '/audio/perry/chat-section1.wav',
-  'chat-section4': '/audio/perry/chat-section4.wav',
-  'chat-hello':    '/audio/perry/chat-hello.wav',
+  'landing':       '/audio/isla/landing.wav',
+  'welcome':       '/audio/isla/welcome.wav',
+  'intro-1':       '/audio/isla/intro-1.wav',
+  'intro-2':       '/audio/isla/intro-2.wav',
+  'intro-3':       '/audio/isla/intro-3.wav',
+  'intro-4':       '/audio/isla/intro-4.wav',
+  'quiz-great':    '/audio/isla/quiz-great.wav',
+  'quiz-good':     '/audio/isla/quiz-good.wav',
+  'quiz-try':      '/audio/isla/quiz-try.wav',
+  'exam-great':    '/audio/isla/exam-great.wav',
+  'exam-good':     '/audio/isla/exam-good.wav',
+  'exam-try':      '/audio/isla/exam-try.wav',
+  'chat-default':  '/audio/isla/chat-default.wav',
+  'chat-grading':  '/audio/isla/chat-grading.wav',
+  'chat-section1': '/audio/isla/chat-section1.wav',
+  'chat-section4': '/audio/isla/chat-section4.wav',
+  'chat-hello':    '/audio/isla/chat-hello.wav',
 };
 
 class IslaVoice {
