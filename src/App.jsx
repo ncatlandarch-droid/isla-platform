@@ -440,21 +440,73 @@ export default function App() {
         c.role === 'user' ? { role: 'user', parts: [{ text: c.text }] } : { role: 'model', parts: [{ text: c.text }] }
       );
 
-      const systemPrompt = `You are ISLA, the AI study coach for the LARE (Landscape Architect Registration Examination) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach who genuinely cares about each student's success.
+      // Dynamic system prompt based on active module
+      const examMeta = moduleData?.EXAM_META;
+      const examName = examMeta?.examName || examMeta?.fullName || 'professional licensure exams';
+      const testCode = examMeta?.testCode || '';
+      const provider = examMeta?.provider || '';
+
+      const modulePrompts = {
+        'lare': `You are ISLA, the AI study coach for the LARE (Landscape Architect Registration Examination) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach.
 
 Your expertise covers:
 - LARE Sections 1-4 (Project & Construction Management, Inventory & Analysis, Design, Grading Drainage & Stormwater)
 - CLARB registration process and Council Records
 - NC licensing requirements
 - Landscape architecture practice, codes, ADA, grading calculations, stormwater (Rational Method Q=CiA)
-- CELA conferences and academic landscape architecture
 
 Rules:
 - Keep responses concise (2-4 sentences max)
 - Be specific with formulas, percentages, and exam tips
 - Use encouraging language ("Aggie", "let's get after it")
 - Reference NC A&T pride when appropriate
-- If asked something outside landscape architecture, gently redirect to LARE topics`;
+- If asked something outside landscape architecture, gently redirect to LARE topics`,
+
+        'praxis-core-reading': `You are ISLA, the AI study coach for the Praxis Core Reading exam (5713) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach.
+
+Your expertise covers:
+- Key Ideas and Details (40%) — main idea, inferences, supporting evidence, summarizing
+- Craft, Structure, and Language Skills (30%) — tone, word meaning in context, passage organization, rhetorical strategies
+- Integration of Knowledge and Ideas (30%) — synthesizing, evaluating arguments, comparing perspectives, assessing evidence
+- ETS test format, scoring (100-200 scale, 156 passing), and test-taking strategies
+
+Rules:
+- Keep responses concise (2-4 sentences max)
+- Reference specific reading strategies and passage analysis techniques
+- Use encouraging language ("Aggie", "you've got this")
+- If asked something outside reading/ELA, gently redirect to Praxis Reading topics`,
+
+        'praxis-core-writing': `You are ISLA, the AI study coach for the Praxis Core Writing exam (5723) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach.
+
+Your expertise covers:
+- Text Types, Purposes, and Production (30%) — argumentative, informative, narrative writing
+- Language and Research Skills for Writing (30%) — grammar, usage, mechanics, citations
+- Writing Section scoring, essay rubrics, and time management strategies
+- ETS test format, scoring, and the constructed-response essays
+
+Rules:
+- Keep responses concise (2-4 sentences max)
+- Reference specific grammar rules, writing techniques, and essay structures
+- Use encouraging language ("Aggie", "let's sharpen those writing skills")
+- If asked something outside writing, gently redirect to Praxis Writing topics`,
+
+        'praxis-core-math': `You are ISLA, the AI study coach for the Praxis Core Math exam (5733) at North Carolina A&T State University. You are warm, encouraging, knowledgeable, and speak like a supportive coach.
+
+Your expertise covers:
+- Number and Quantity (30%) — arithmetic, fractions, decimals, percentages, ratios
+- Algebra and Functions (30%) — equations, inequalities, linear functions, patterns
+- Geometry, Probability, and Statistics (30%) — shapes, measurement, data interpretation, probability
+- ETS test format, scoring (100-200 scale, 150 passing), calculator usage, and test-taking strategies
+
+Rules:
+- Keep responses concise (2-4 sentences max)
+- Show step-by-step math when explaining formulas
+- Use encouraging language ("Aggie", "let's work through this together")
+- If asked something outside math, gently redirect to Praxis Math topics`,
+      };
+
+      const systemPrompt = modulePrompts[activeProgram] || 
+        `You are ISLA, the AI study coach for ${examName} at North Carolina A&T State University. You are warm, encouraging, and knowledgeable. Keep responses concise (2-4 sentences). Use encouraging language. Focus on ${examName} exam content.`;
 
       const chatRequestBody = {
             system_instruction: { parts: [{ text: systemPrompt }] },
@@ -484,7 +536,10 @@ Rules:
 
       if (!response.ok) throw new Error('API error');
       const data = await response.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Let me think about that — try asking a specific LARE topic like grading, stormwater, or Section 1.";
+      const fallbackText = activeProgram === 'lare' 
+        ? "Let me think about that — try asking a specific LARE topic like grading, stormwater, or Section 1."
+        : `Let me think about that — try asking about a specific ${examName} topic!`;
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || fallbackText;
 
       // Replace thinking indicator with real reply
       setChatHistory(prev => {
@@ -496,14 +551,41 @@ Rules:
       });
       islaVoice.speak(reply);
     } catch (err) {
-      // Fallback to smart keyword matching if API fails — use pre-recorded audio
+      // Fallback to smart keyword matching if API fails
       const msg = userMsg.toLowerCase();
-      let reply = "Great question! Every challenge in landscape architecture starts with understanding the site. What specific topic can I help you break down?";
-      let audioKey = 'chat-default';
-      if (msg.includes("grading") || msg.includes("slope")) { reply = "Slope (%) = (Rise / Run) × 100. For swales, stay between 2% and 10%. Section 4 is 44% grading — master this formula and you'll dominate that section."; audioKey = 'chat-grading'; }
-      if (msg.includes("section 1") || msg.includes("management")) { reply = "Section 1 is 39% Physical Analysis. Focus on soil classification, hydrology, and ASTM Phase I ESA. Know your USGS symbols!"; audioKey = 'chat-section1'; }
-      if (msg.includes("section 4") || msg.includes("stormwater")) { reply = "Section 4 is the 'Widowmaker' — 44% Grading, 39% Stormwater. Master the Rational Method: Q = CiA."; audioKey = 'chat-section4'; }
-      if (msg.includes("hello") || msg.includes("hi")) { reply = "Good to see you, Aggie! Let's get after it. What section are you studying today?"; audioKey = 'chat-hello'; }
+      let reply, audioKey;
+
+      if (activeProgram === 'lare') {
+        reply = "Great question! Every challenge in landscape architecture starts with understanding the site. What specific topic can I help you break down?";
+        audioKey = 'chat-default';
+        if (msg.includes("grading") || msg.includes("slope")) { reply = "Slope (%) = (Rise / Run) × 100. For swales, stay between 2% and 10%. Section 4 is 44% grading — master this formula and you'll dominate that section."; audioKey = 'chat-grading'; }
+        if (msg.includes("section 1") || msg.includes("management")) { reply = "Section 1 is 39% Physical Analysis. Focus on soil classification, hydrology, and ASTM Phase I ESA. Know your USGS symbols!"; audioKey = 'chat-section1'; }
+        if (msg.includes("section 4") || msg.includes("stormwater")) { reply = "Section 4 is the 'Widowmaker' — 44% Grading, 39% Stormwater. Master the Rational Method: Q = CiA."; audioKey = 'chat-section4'; }
+        if (msg.includes("hello") || msg.includes("hi")) { reply = "Good to see you, Aggie! Let's get after it. What section are you studying today?"; audioKey = 'chat-hello'; }
+      } else if (activeProgram === 'praxis-core-reading') {
+        reply = "Great question! Reading comprehension is all about going back to the passage. What specific skill would you like to work on — main idea, inferences, or author's tone?";
+        audioKey = null;
+        if (msg.includes("main idea")) { reply = "The main idea is the author's central point — not just the topic. Ask yourself: 'What is the author saying ABOUT the topic?' The answer is usually in the first or last paragraph."; }
+        if (msg.includes("inference")) { reply = "An inference must be supported by textual evidence. Don't go with your gut — find the specific words in the passage that support your conclusion. The best inference is the one most directly supported."; }
+        if (msg.includes("tone") || msg.includes("attitude")) { reply = "To identify tone, look at the author's word choices. Words like 'commendable' vs. 'unfortunate' reveal attitude. The tone is rarely extreme — eliminate answers that are too positive or too negative."; }
+        if (msg.includes("hello") || msg.includes("hi")) { reply = "Hey Aggie! Ready to sharpen those reading skills? What would you like to practice — main idea, inferences, or vocabulary in context?"; }
+      } else if (activeProgram === 'praxis-core-writing') {
+        reply = "Great question! Strong writing starts with clear structure. What would you like to work on — grammar, essay structure, or revision strategies?";
+        audioKey = null;
+        if (msg.includes("grammar") || msg.includes("sentence")) { reply = "Watch for subject-verb agreement, pronoun-antecedent agreement, and dangling modifiers — they're the most commonly tested grammar concepts on the Praxis Writing exam!"; }
+        if (msg.includes("essay")) { reply = "For the argumentative essay, use a clear thesis, at least two body paragraphs with evidence, and a conclusion. Budget 30 minutes — 5 to plan, 20 to write, 5 to revise."; }
+        if (msg.includes("hello") || msg.includes("hi")) { reply = "Hey Aggie! Let's work on those writing skills. What would you like to focus on — grammar, essay writing, or revision?"; }
+      } else if (activeProgram === 'praxis-core-math') {
+        reply = "Great question! Math is all about practice and patterns. What topic would you like to review — fractions, algebra, or geometry?";
+        audioKey = null;
+        if (msg.includes("fraction") || msg.includes("decimal")) { reply = "To convert a fraction to a decimal, divide the numerator by the denominator. For percentages, multiply the decimal by 100. Remember: fraction → decimal → percent is a chain!"; }
+        if (msg.includes("algebra") || msg.includes("equation")) { reply = "For linear equations, isolate the variable step by step. Whatever you do to one side, do to the other. For word problems, define your variable first, then translate words to math."; }
+        if (msg.includes("geometry") || msg.includes("area")) { reply = "Key formulas: Area of a rectangle = length × width. Area of a triangle = ½ × base × height. Area of a circle = π × r². These are heavily tested!"; }
+        if (msg.includes("hello") || msg.includes("hi")) { reply = "Hey Aggie! Let's crunch some numbers. What math topic do you want to tackle — arithmetic, algebra, or geometry?"; }
+      } else {
+        reply = "Great question! What specific topic would you like me to help you with?";
+        audioKey = null;
+      }
 
       setChatHistory(prev => {
         const updated = [...prev];
@@ -512,7 +594,9 @@ Rules:
         else updated.push({ role: 'isla', text: reply, timestamp: Date.now() });
         return updated;
       });
-      playIslaStatic(audioKey);
+      // Play pre-recorded WAV for LARE, or speak via TTS for Praxis
+      if (audioKey) playIslaStatic(audioKey);
+      else islaVoice.speak(reply);
     }
   };
 
@@ -1558,6 +1642,7 @@ Rules:
           {viewMode === 'module-landing' && adaptiveSection && (
             <ModuleLanding
               sectionId={adaptiveSection}
+              activeProgram={activeProgram}
               performanceTracker={performanceTracker}
               spacedRepetition={spacedRepetition}
               playIslaStatic={playIslaStatic}

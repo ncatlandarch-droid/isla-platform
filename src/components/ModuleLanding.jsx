@@ -33,7 +33,8 @@ export default function ModuleLanding({
   spacedRepetition,
   playIslaStatic,
   examSections = [],
-  sectionIntros = {}
+  sectionIntros = {},
+  activeProgram = 'lare'
 }) {
   const section = examSections.find(s => s.id === sectionId);
   const [introDone, setIntroDone] = useState(false);
@@ -49,12 +50,25 @@ export default function ModuleLanding({
     setTimeout(() => setResetDone(false), 2000);
   };
 
-  // Perry speaks the intro on mount — instant from static pre-recorded file
+  // ISLA speaks the section intro on mount
+  // LARE: instant pre-recorded WAV  |  Praxis: live TTS with exam-specific text
   useEffect(() => {
     islaVoice.stop();
-    const key = `intro-${sectionId}`;
-    if (playIslaStatic) playIslaStatic(key);
-    else islaVoice.playStatic(key);
+    const isLare = activeProgram === 'lare';
+    
+    if (isLare) {
+      // LARE has pre-recorded WAVs for each section
+      const key = `intro-${sectionId}`;
+      if (playIslaStatic) playIslaStatic(key);
+      else islaVoice.playStatic(key);
+    } else {
+      // Praxis: speak the section intro text via live TTS (Aoede voice)
+      const introText = sectionIntros?.[sectionId];
+      if (introText) {
+        islaVoice.speak(introText);
+      }
+    }
+    
     const timer = setTimeout(() => setIntroDone(true), 1500);
     return () => { clearTimeout(timer); islaVoice.stop(); };
   }, [sectionId]);
