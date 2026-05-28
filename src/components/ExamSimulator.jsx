@@ -15,8 +15,7 @@ import {
   XCircle, Award, AlertTriangle, BarChart3, Play, Pause, RotateCcw,
   Grid3X3, Eye, TrendingUp, Target, Zap, BookOpen, Timer, Loader
 } from 'lucide-react';
-import { AGGIE_BLUE, AGGIE_GOLD, EXAM_SECTIONS } from '../data/examSections.js';
-import { QUESTION_BANK } from '../data/questionBank.js';
+import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
 import questionEngine from '../engine/QuestionEngine.js';
 
 /** Format seconds into HH:MM:SS */
@@ -41,9 +40,11 @@ export default function ExamSimulator({
   sectionId,
   onBack,
   onComplete,
-  performanceTracker
+  performanceTracker,
+  examSections = [],
+  questionBank = {}
 }) {
-  const section = EXAM_SECTIONS.find(s => s.id === sectionId);
+  const section = examSections.find(s => s.id === sectionId);
   const examDuration = (section?.examDuration || 180) * 60; // seconds
 
   // === EXAM STATES ===
@@ -69,7 +70,7 @@ export default function ExamSimulator({
     setLoadProgress(`Preparing ${targetCount} exam items...`);
 
     // Get static questions
-    const staticQs = [...(QUESTION_BANK[sectionId] || [])];
+    const staticQs = [...(questionBank[sectionId] || [])];
     
     // Generate additional questions from QuestionEngine to fill the gap
     const needed = Math.max(0, targetCount - staticQs.length);
@@ -582,7 +583,7 @@ export default function ExamSimulator({
             setIsPaused(false);
             // Regenerate fresh exam at full count
             const targetCount = section.totalItems || 80;
-            const staticQs = [...(QUESTION_BANK[sectionId] || [])];
+            const staticQs = [...(questionBank[sectionId] || [])];
             const needed = Math.max(0, targetCount - staticQs.length);
             const engineQs = needed > 0
               ? questionEngine.generateQuestions(sectionId, needed, { excludeIds: staticQs.map(q => q.id) })

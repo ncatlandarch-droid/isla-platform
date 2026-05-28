@@ -8,10 +8,9 @@ import {
   Check, BookOpen, Zap
 } from 'lucide-react';
 import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
-import { FLASHCARD_DATA } from '../data/flashcardData.js';
 
-export default function Flashcards({ section, sectionTitle, onBack }) {
-  const allCards = useMemo(() => [...(FLASHCARD_DATA[section] || [])], [section]);
+export default function Flashcards({ section, sectionTitle, onBack, flashcardData = {} }) {
+  const allCards = useMemo(() => [...(flashcardData[section] || [])], [section, flashcardData]);
   const [cards, setCards] = useState(allCards);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);

@@ -7,7 +7,7 @@ import {
   BarChart3, Target, AlertTriangle, TrendingUp, TrendingDown,
   Award, Zap, Clock, BookOpen, Play, ChevronRight, Minus
 } from 'lucide-react';
-import { EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
+import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
 
 /** Mastery color based on percentage */
 function masteryColor(pct) {
@@ -34,7 +34,8 @@ export default function MasteryDashboard({
   onStartQuiz,
   onStartFocus,
   onStartExam,
-  onStartDrill
+  onStartDrill,
+  examSections = []
 }) {
   const allStats = useMemo(() => performanceTracker.getAllTopicStats(), []);
   const weaknessReport = useMemo(() => performanceTracker.getWeaknessReport(), []);
@@ -46,13 +47,13 @@ export default function MasteryDashboard({
   const srStats = useMemo(() => spacedRepetition.getOverallStats(), []);
 
   // Build section readiness
-  const sectionReadiness = EXAM_SECTIONS.map(s => ({
+  const sectionReadiness = examSections.map(s => ({
     ...s,
     readiness: performanceTracker.getSectionReadiness(s.id)
   }));
 
   // Build heat map data
-  const heatMapData = EXAM_SECTIONS.map(section => ({
+  const heatMapData = examSections.map(section => ({
     section,
     topics: section.topics.map(t => {
       const stat = allStats.find(s => s.section === section.id && s.topic === t.name);
@@ -75,7 +76,7 @@ export default function MasteryDashboard({
       <div className="mastery-dash__hero">
         <div className="mastery-dash__hero-text">
           <h2 className="mastery-dash__title">Mastery Dashboard</h2>
-          <p className="mastery-dash__subtitle">Your LARE preparation at a glance</p>
+          <p className="mastery-dash__subtitle">Your exam preparation at a glance</p>
         </div>
         <div className="mastery-dash__hero-stats">
           <div className="mastery-dash__hero-stat">
@@ -103,7 +104,7 @@ export default function MasteryDashboard({
 
       {/* Quick Actions */}
       <div className="mastery-dash__actions">
-        {EXAM_SECTIONS.map(s => (
+        {examSections.map(s => (
           <button key={s.id} className="mastery-dash__action-btn" 
             onClick={() => onStartQuiz(s.id)} style={{ borderColor: s.color }}>
             <span className="mastery-dash__action-section">Section {s.id}</span>

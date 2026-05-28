@@ -16,15 +16,16 @@ import {
   signInWithGoogle, firebaseReady
 } from './firebase.js';
 
-import { EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from './data/examSections.js';
-import { QUESTION_BANK } from './data/questionBank.js';
-import { PERRY_INTROS } from './data/flashcardData.js'; // Added PERRY_INTROS
+import { EXAM_SECTIONS as LARE_EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from './data/examSections.js';
+import { QUESTION_BANK as LARE_QUESTION_BANK } from './data/questionBank.js';
+import { FLASHCARD_DATA as LARE_FLASHCARD_DATA, PERRY_INTROS as LARE_INTROS } from './data/flashcardData.js';
 import { generateQuestion, getAskedQuestions, recordAskedQuestion } from './engine/questionGenerator.js';
 import { STATE_REQUIREMENTS, CLARB_FEES } from './data/stateRequirements.js';
-import { GLOSSARY_DATA } from './data/glossaryData.js';
+import { GLOSSARY_DATA as LARE_GLOSSARY_DATA } from './data/glossaryData.js';
 import {
   CELA_RESOURCES, CLARB_RESOURCES, SGLA_RESOURCES, EXAM_TIMELINE
 } from './data/celaResources.js';
+import loadModule from './data/moduleLoader.js';
 
 // === NEW: Adaptive Learning Engine ===
 import questionEngine from './engine/QuestionEngine.js';
@@ -94,9 +95,27 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
 
   // --- Program Selection (modular architecture) ---
-  const [activeProgram, setActiveProgram] = useState(null);   // null | 'lare' | 'nclex' etc.
+  const [activeProgram, setActiveProgram] = useState(null);   // null | 'lare' | 'praxis-core-reading' etc.
   const [activeCollege, setActiveCollege] = useState(null);   // null | college object
   const [userRole, setUserRole] = useState('student');        // 'student' | 'admin'
+
+  // --- Dynamic Module Data (loaded based on activeProgram) ---
+  const [moduleData, setModuleData] = useState(null);
+  useEffect(() => {
+    if (activeProgram) {
+      const mod = loadModule(activeProgram);
+      setModuleData(mod);
+    } else {
+      setModuleData(null);
+    }
+  }, [activeProgram]);
+
+  // --- Derived data: use module data if available, else fallback to LARE ---
+  const EXAM_SECTIONS = moduleData?.EXAM_SECTIONS || LARE_EXAM_SECTIONS;
+  const QUESTION_BANK = moduleData?.QUESTION_BANK || LARE_QUESTION_BANK;
+  const FLASHCARD_DATA = moduleData?.FLASHCARD_DATA || LARE_FLASHCARD_DATA;
+  const GLOSSARY_DATA = moduleData?.GLOSSARY_DATA || LARE_GLOSSARY_DATA;
+  const PERRY_INTROS = moduleData?.SECTION_INTROS || LARE_INTROS;
 
   // --- App Navigation ---
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -1446,6 +1465,8 @@ Rules:
               onStartMatchGame={() => setViewMode('match-game')}
               onStartGlossary={() => setViewMode('glossary-game')}
               onStartExam={() => setViewMode('exam-sim')}
+              examSections={EXAM_SECTIONS}
+              sectionIntros={PERRY_INTROS}
             />
           )}
 
@@ -1455,6 +1476,7 @@ Rules:
               section={adaptiveSection}
               sectionTitle={EXAM_SECTIONS.find(s => s.id === adaptiveSection)?.shortTitle}
               onBack={() => setViewMode('module-landing')}
+              flashcardData={FLASHCARD_DATA}
             />
           )}
 
@@ -1464,6 +1486,7 @@ Rules:
               section={adaptiveSection}
               sectionTitle={EXAM_SECTIONS.find(s => s.id === adaptiveSection)?.shortTitle}
               onBack={() => setViewMode('module-landing')}
+              flashcardData={FLASHCARD_DATA}
             />
           )}
 
@@ -1475,6 +1498,7 @@ Rules:
               onBack={() => setViewMode('module-landing')}
               dataSource={GLOSSARY_DATA}
               gameTitle={`${EXAM_SECTIONS.find(s => s.id === adaptiveSection)?.shortTitle} — Glossary Match`}
+              flashcardData={FLASHCARD_DATA}
             />
           )}
 
@@ -1499,6 +1523,7 @@ Rules:
               }}
               focusTopic={adaptiveFocusTopic}
               questionCount={20}
+              questionBank={QUESTION_BANK}
             />
           )}
 
@@ -1519,6 +1544,8 @@ Rules:
                   playPerryStatic('exam-try');
                 }
               }}
+              examSections={EXAM_SECTIONS}
+              questionBank={QUESTION_BANK}
             />
           )}
 
@@ -1529,6 +1556,8 @@ Rules:
               spacedRepetition={spacedRepetition}
               performanceTracker={performanceTracker}
               onBack={() => navigateTo('dashboard')}
+              examSections={EXAM_SECTIONS}
+              questionBank={QUESTION_BANK}
             />
           )}
 
@@ -1547,6 +1576,7 @@ Rules:
               spacedRepetition={spacedRepetition}
               onStartQuiz={(sectionId, topic) => startAdaptiveQuiz(sectionId, topic)}
               onStartFocus={startFocusMode}
+              examSections={EXAM_SECTIONS}
             />
           )}
         </main>

@@ -7,8 +7,7 @@ import {
   ArrowLeft, Play, BookOpen, Puzzle, Target, ChevronRight,
   ExternalLink, Zap, Volume2, VolumeX, RotateCcw, Timer
 } from 'lucide-react';
-import { AGGIE_BLUE, AGGIE_GOLD, EXAM_SECTIONS } from '../data/examSections.js';
-import { PERRY_INTROS } from '../data/flashcardData.js';
+import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
 import perryVoice from '../engine/PerryVoice.js';
 
 /** Extract YouTube video ID from URL */
@@ -32,9 +31,11 @@ export default function ModuleLanding({
   onStartExam,
   performanceTracker,
   spacedRepetition,
-  playPerryStatic
+  playPerryStatic,
+  examSections = [],
+  sectionIntros = {}
 }) {
-  const section = EXAM_SECTIONS.find(s => s.id === sectionId);
+  const section = examSections.find(s => s.id === sectionId);
   const [introDone, setIntroDone] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
@@ -155,7 +156,7 @@ export default function ModuleLanding({
             />
           </div>
           <div className="ml-perry-intro__bubble">
-            <p>{PERRY_INTROS[sectionId]}</p>
+            <p>{sectionIntros[sectionId]}</p>
           </div>
         </div>
       </div>
@@ -319,7 +320,7 @@ export default function ModuleLanding({
             </div>
             <h4 className="ml-activity-card__title">Glossary Game</h4>
             <p className="ml-activity-card__desc">
-              Match LARE vocabulary terms to their definitions. Master the professional language of the exam.
+              Match vocabulary terms to their definitions. Master the professional language of the exam.
             </p>
             <span className="ml-activity-card__cta">
               Play Glossary <ChevronRight size={16} />
@@ -333,7 +334,7 @@ export default function ModuleLanding({
             </div>
             <h4 className="ml-activity-card__title">Exam Simulation</h4>
             <p className="ml-activity-card__desc">
-              Full 3-hour timed test simulating the actual CLARB LARE exam. No feedback until you submit.
+              Full timed test simulating the actual exam experience. No feedback until you submit.
             </p>
             <span className="ml-activity-card__cta">
               Start Exam <ChevronRight size={16} />

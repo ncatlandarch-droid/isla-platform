@@ -4,14 +4,16 @@
  */
 import React, { useState, useMemo } from 'react';
 import { Target, Zap, TrendingUp, ArrowLeft, AlertTriangle, ChevronRight, Play } from 'lucide-react';
-import { EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
+import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
 import AdaptiveQuiz from './AdaptiveQuiz.jsx';
 
 export default function FocusMode({
   questionEngine,
   spacedRepetition,
   performanceTracker,
-  onBack
+  onBack,
+  examSections = [],
+  questionBank = {}
 }) {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
@@ -23,7 +25,7 @@ export default function FocusMode({
 
   // Build topic list for each section with mastery data
   const sectionData = useMemo(() => {
-    return EXAM_SECTIONS.map(section => {
+    return examSections.map(section => {
       const topics = section.topics.map(t => {
         const stats = allTopicStats.find(s => s.section === section.id && s.topic === t.name);
         return {
@@ -45,7 +47,7 @@ export default function FocusMode({
     return (
       <AdaptiveQuiz
         section={selectedSection}
-        sectionTitle={EXAM_SECTIONS.find(s => s.id === selectedSection)?.shortTitle}
+        sectionTitle={examSections.find(s => s.id === selectedSection)?.shortTitle}
         questionEngine={questionEngine}
         spacedRepetition={spacedRepetition}
         performanceTracker={performanceTracker}
@@ -54,6 +56,7 @@ export default function FocusMode({
         mode="focus"
         focusTopic={selectedTopic}
         questionCount={10}
+        questionBank={questionBank}
       />
     );
   }

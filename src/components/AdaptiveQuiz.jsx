@@ -10,7 +10,6 @@ import {
   ChevronDown, ChevronUp, Lightbulb, AlertTriangle
 } from 'lucide-react';
 import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
-import { QUESTION_BANK } from '../data/questionBank.js';
 
 /** Circular Progress Ring */
 const ProgressRing = ({ progress, size = 80, strokeWidth = 6 }) => {
@@ -52,7 +51,8 @@ export default function AdaptiveQuiz({
   onComplete,
   mode = 'practice', // 'practice' | 'focus' | 'exam'
   focusTopic = null,
-  questionCount = 15
+  questionCount = 15,
+  questionBank = {}
 }) {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,7 +73,7 @@ export default function AdaptiveQuiz({
 
   // Load ALL static questions from bank, shuffled
   const loadStaticQuestions = () => {
-    const staticQs = [...(QUESTION_BANK[section] || [])];
+    const staticQs = [...(questionBank[section] || [])];
     // Fisher-Yates shuffle
     for (let i = staticQs.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));

@@ -104,9 +104,12 @@ const UNIVERSITY = {
       icon: '/college-icons/icon-education-color.svg',
       color: '#FDB827',
       programs: [
-        { id: 'eled', name: 'Elementary Education', degree: 'BS', exam: 'Praxis', module: null, status: 'coming-soon', icon: '🎓' },
-        { id: 'sped', name: 'Special Education', degree: 'BS', exam: 'Praxis', module: null, status: 'coming-soon', icon: '🧩' },
-        { id: 'cuin', name: 'Curriculum & Instruction', degree: 'BS', exam: 'Praxis', module: null, status: 'coming-soon', icon: '📝' },
+        { id: 'praxis-core-reading', name: 'Praxis Core: Reading', degree: 'BS', exam: 'Praxis 5713', module: 'praxis-core-reading', status: 'active', icon: '📖' },
+        { id: 'praxis-core-writing', name: 'Praxis Core: Writing', degree: 'BS', exam: 'Praxis 5723', module: 'praxis-core-writing', status: 'active', icon: '✍️' },
+        { id: 'praxis-core-math', name: 'Praxis Core: Math', degree: 'BS', exam: 'Praxis 5733', module: 'praxis-core-math', status: 'active', icon: '🔢' },
+        { id: 'eled', name: 'Elementary Education', degree: 'BS', exam: 'Praxis 5001', module: null, status: 'coming-soon', icon: '🎓' },
+        { id: 'sped', name: 'Special Education', degree: 'BS', exam: 'Praxis 5354', module: null, status: 'coming-soon', icon: '🧩' },
+        { id: 'plt-k6', name: 'PLT: Grades K-6', degree: 'BS', exam: 'Praxis 5622', module: null, status: 'coming-soon', icon: '📝' },
       ]
     },
     {

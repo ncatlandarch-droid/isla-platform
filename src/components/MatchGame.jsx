@@ -7,7 +7,6 @@ import {
   ArrowLeft, Clock, RotateCcw, Award, Zap, CheckCircle2
 } from 'lucide-react';
 import { AGGIE_BLUE, AGGIE_GOLD } from '../data/examSections.js';
-import { FLASHCARD_DATA } from '../data/flashcardData.js';
 
 /** Shuffle helper */
 const shuffleArray = (arr) => {
@@ -19,9 +18,9 @@ const shuffleArray = (arr) => {
   return a;
 };
 
-export default function MatchGame({ section, sectionTitle, onBack, dataSource = null, gameTitle = null }) {
+export default function MatchGame({ section, sectionTitle, onBack, dataSource = null, gameTitle = null, flashcardData = {} }) {
   const PAIR_COUNT = 6;
-  // Use custom dataSource if provided, otherwise fall back to flashcard data
+  // Use custom dataSource if provided, otherwise fall back to flashcard data from module
   const allCards = useMemo(() => {
     if (dataSource && dataSource[section]) {
       // Glossary format: { term, definition } → convert to { front, back }
@@ -30,8 +29,8 @@ export default function MatchGame({ section, sectionTitle, onBack, dataSource = 
         back: item.definition || item.back
       }));
     }
-    return FLASHCARD_DATA[section] || [];
-  }, [section, dataSource]);
+    return (flashcardData[section] || []);
+  }, [section, dataSource, flashcardData]);
 
   const [pairs, setPairs] = useState([]);
   const [shuffledDefs, setShuffledDefs] = useState([]);
