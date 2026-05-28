@@ -211,5 +211,93 @@ export async function getUserProfile(uid) {
   }
 }
 
+// ─── Canvas LMS Integration ────────────────────────────────
+
+/**
+ * Save Canvas enrollment data to Firestore user document.
+ * Called after successful Canvas OAuth + course mapping.
+ *
+ * @param {string} uid - Firebase user ID
+ * @param {Object} canvasData - { canvasUserId, modules, courses, matchDetails }
+ */
+export async function saveCanvasEnrollment(uid, canvasData) {
+  if (!firebaseReady || !uid) return;
+  try {
+    await setDoc(doc(db, 'users', uid), {
+      canvas: {
+        userId: canvasData.canvasUserId || null,
+        enrolledModules: canvasData.modules || [],
+        matchDetails: canvasData.matchDetails || [],
+        courseCount: canvasData.courses?.length || 0,
+        lastSync: new Date().toISOString(),
+        loginMethod: 'canvas',
+      },
+      lastUpdated: serverTimestamp(),
+    }, { merge: true });
+  } catch (e) {
+    console.warn('[Firestore] Failed to save Canvas enrollment:', e.message);
+  }
+}
+
+/**
+ * Get stored Canvas enrollment data for a user.
+ * Returns null if no Canvas data exists.
+ *
+ * @param {string} uid - Firebase user ID
+ * @returns {Object|null} Canvas enrollment data
+ */
+export async function getCanvasEnrollment(uid) {
+  if (!firebaseReady || !uid) return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (snap.exists() && snap.data().canvas) {
+      return snap.data().canvas;
+    }
+  } catch (e) {
+    console.warn('[Firestore] Failed to load Canvas enrollment:', e.message);
+  }
+  return null;
+}
+
+/**
+ * Create or merge a Firebase user document for a Canvas-authenticated user.
+ * Uses the Canvas email to find/create the Firebase user doc.
+ *
+ * @param {string} uid - Firebase user ID
+ * @param {Object} canvasUser - { id, name, email, avatar_url }
+ */
+export async function linkCanvasToFirebase(uid, canvasUser) {
+  if (!firebaseReady || !uid) return;
+  try {
+    const userRef = doc(db, 'users', uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      // First-time Canvas user — create full document
+      await setDoc(userRef, {
+        displayName: canvasUser.name || canvasUser.email?.split('@')[0] || 'Aggie Student',
+        email: canvasUser.email || '',
+        canvasUserId: canvasUser.id,
+        avatarUrl: canvasUser.avatar_url || null,
+        loginMethod: 'canvas',
+        createdAt: serverTimestamp(),
+        progress: { streak: 0, mastery: 0, solved: 0, lastStudyDate: '' },
+        quizHistory: [],
+        sectionProgress: {},
+      });
+    } else {
+      // Existing user — merge Canvas fields
+      await updateDoc(userRef, {
+        canvasUserId: canvasUser.id,
+        avatarUrl: canvasUser.avatar_url || snap.data().avatarUrl || null,
+        loginMethod: 'canvas',
+        lastUpdated: serverTimestamp(),
+      });
+    }
+  } catch (e) {
+    console.warn('[Firestore] Failed to link Canvas to Firebase:', e.message);
+  }
+}
+
 // ─── Exports ────────────────────────────────────────────────
 export { auth, db, firebaseReady };
+

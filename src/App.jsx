@@ -13,8 +13,10 @@ import {
 import {
   loginUser, registerUser, logoutUser, onAuthChange,
   getUserProgress, saveUserProgress, saveQuizResult,
-  signInWithGoogle, firebaseReady
+  signInWithGoogle, firebaseReady,
+  saveCanvasEnrollment, getCanvasEnrollment, linkCanvasToFirebase
 } from './firebase.js';
+import { isCanvasConfigured, startCanvasLogin, clearCanvasSession } from './services/canvasService.js';
 
 import { EXAM_SECTIONS as LARE_EXAM_SECTIONS, AGGIE_BLUE, AGGIE_GOLD } from './data/examSections.js';
 import { QUESTION_BANK as LARE_QUESTION_BANK } from './data/questionBank.js';
@@ -93,6 +95,9 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+
+  // --- Canvas LMS Integration ---
+  const [canvasEnrollments, setCanvasEnrollments] = useState([]);  // matched module IDs from Canvas courses
 
   // --- Program Selection (modular architecture) ---
   const [activeProgram, setActiveProgram] = useState(null);   // null | 'lare' | 'praxis-core-reading' etc.
@@ -229,8 +234,14 @@ export default function App() {
           setProgress(cloudProgress);
           try { localStorage.setItem('lare-progress', JSON.stringify(cloudProgress)); } catch(e) {}
         }
+        // Load stored Canvas enrollment data
+        const canvasData = await getCanvasEnrollment(user.uid);
+        if (canvasData?.enrolledModules?.length) {
+          setCanvasEnrollments(canvasData.enrolledModules);
+        }
       } else {
         setIsLoggedIn(false);
+        setCanvasEnrollments([]);
       }
     });
     return () => unsub();
@@ -321,8 +332,10 @@ export default function App() {
   const handleLogout = async () => {
     try {
       await logoutUser();
+      clearCanvasSession();  // Clear in-memory Canvas tokens
       setIsLoggedIn(false);
       setFirebaseUser(null);
+      setCanvasEnrollments([]);
       setProgress({ streak: 0, mastery: 0, solved: 0, lastStudyDate: '' });
       setActiveTab('dashboard');
     } catch (err) {
@@ -339,6 +352,47 @@ export default function App() {
       const msg = err.code === 'auth/popup-closed-by-user' ? 'Sign-in popup was closed.'
         : err.code === 'auth/popup-blocked' ? 'Popup was blocked — please allow popups for this site.'
         : err.message || 'Google sign-in failed.';
+      setAuthError(msg);
+    }
+    setAuthLoading(false);
+  };
+
+  // --- Canvas LMS Login Handler ---
+  const handleCanvasLogin = async () => {
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const result = await startCanvasLogin();
+      // result = { user, courses, modules, matchDetails }
+
+      // If we have a Firebase user, link Canvas data to their profile
+      if (firebaseUser?.uid) {
+        await linkCanvasToFirebase(firebaseUser.uid, result.user);
+        await saveCanvasEnrollment(firebaseUser.uid, {
+          canvasUserId: result.user?.id,
+          modules: result.modules,
+          courses: result.courses,
+          matchDetails: result.matchDetails,
+        });
+      }
+
+      // Store enrolled modules in state
+      setCanvasEnrollments(result.modules || []);
+
+      // If not logged in via Firebase, do a local-only login
+      if (!isLoggedIn) {
+        setIsLoggedIn(true);
+      }
+
+      // Auto-select program if Canvas matched exactly 1 module
+      if (result.modules.length === 1) {
+        setActiveProgram(result.modules[0]);
+        setActiveTab('dashboard');
+      }
+    } catch (err) {
+      const msg = err.message === 'Sign-in window was closed.'
+        ? 'Canvas sign-in was cancelled.'
+        : err.message || 'Canvas sign-in failed.';
       setAuthError(msg);
     }
     setAuthLoading(false);
@@ -669,6 +723,41 @@ Rules:
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
               Sign in with Google
             </button>
+
+            {/* Canvas LMS Sign-In */}
+            {isCanvasConfigured() && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1.5rem 0' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,70,132,0.15)' }} />
+                  <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>or</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(0,70,132,0.15)' }} />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCanvasLogin}
+                  disabled={authLoading}
+                  style={{
+                    width: '100%', padding: '1.25rem', fontSize: '1.1rem',
+                    background: 'linear-gradient(135deg, #004684 0%, #002244 100%)',
+                    border: '2px solid rgba(253,185,39,0.4)',
+                    borderRadius: '1rem', cursor: 'pointer', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', gap: '0.75rem',
+                    fontWeight: 700, color: '#fff', transition: 'all 0.2s',
+                    opacity: authLoading ? 0.6 : 1
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.borderColor = AGGIE_GOLD}
+                  onMouseOut={(e) => e.currentTarget.style.borderColor = 'rgba(253,185,39,0.4)'}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                  </svg>
+                  Sign in with NC A&T Canvas
+                </button>
+              </>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
               <button
@@ -1424,7 +1513,7 @@ Rules:
 
       {/* ============ COLLEGE SELECTOR (no program selected) ============ */}
       {!activeProgram ? (
-        <CollegeSelector onSelectProgram={handleSelectProgram} />
+        <CollegeSelector onSelectProgram={handleSelectProgram} canvasEnrollments={canvasEnrollments} />
       ) : (
         <>
         {Sidebar()}

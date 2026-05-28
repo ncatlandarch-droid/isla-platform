@@ -768,6 +768,115 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* ═══════════ CANVAS LMS INTEGRATION ═══════════ */
+.college-selector__canvas-section {
+  background: linear-gradient(135deg, rgba(0,70,132,0.08) 0%, rgba(253,185,39,0.06) 100%);
+  border: 2px solid rgba(0,70,132,0.15);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: fadeSlideIn 0.5s ease-out;
+}
+.college-selector__canvas-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--aggie-blue);
+}
+.college-selector__canvas-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.college-selector__canvas-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0 0;
+}
+.college-selector__canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.canvas-program-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  background: rgba(255,255,255,0.95);
+  border: 2px solid rgba(0,70,132,0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.canvas-program-card:hover {
+  border-color: var(--aggie-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,70,132,0.12);
+}
+.canvas-program-card__badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--aggie-blue);
+  background: rgba(0,70,132,0.08);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+.canvas-program-card__icon { font-size: 1.75rem; }
+.canvas-program-card__name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.canvas-program-card__exam {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(0,70,132,0.06);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+.canvas-program-card__go {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--aggie-gold);
+  margin-top: 0.25rem;
+}
+
+/* Canvas badge on individual program items */
+.program-item--canvas { border-left: 3px solid var(--aggie-blue); }
+.program-item__canvas-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: var(--aggie-blue);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
 /* ═══════════ CONTENT NAV (tabs in body) ═══════════ */
 .content-nav {
   display: flex;

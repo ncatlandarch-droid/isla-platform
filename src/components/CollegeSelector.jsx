@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { ChevronRight, Lock, Sparkles, ArrowRight } from 'lucide-react';
+import { ChevronRight, Lock, Sparkles, ArrowRight, MonitorSmartphone } from 'lucide-react';
 import UNIVERSITY from '../config/university.js';
 
 /**
  * CollegeSelector — EMMA-style landing page
  * Shows all colleges as cards. Click to expand → see programs.
  * Active programs launch the module. Coming-soon programs show lock.
+ *
+ * Canvas Integration: When canvasEnrollments is provided, shows a
+ * "Your Canvas Courses" section at the top with auto-detected modules.
  */
-export default function CollegeSelector({ onSelectProgram }) {
+export default function CollegeSelector({ onSelectProgram, canvasEnrollments = [] }) {
   const [expandedCollege, setExpandedCollege] = useState(null);
 
   const handleCollegeClick = (collegeId) => {
@@ -27,8 +30,54 @@ export default function CollegeSelector({ onSelectProgram }) {
     (sum, c) => sum + c.programs.length, 0
   );
 
+  // Find Canvas-enrolled programs across all colleges
+  const canvasPrograms = [];
+  if (canvasEnrollments.length > 0) {
+    for (const college of UNIVERSITY.colleges) {
+      for (const program of college.programs) {
+        if (program.status === 'active' && canvasEnrollments.includes(program.id)) {
+          canvasPrograms.push({ college, program });
+        }
+      }
+    }
+  }
+
   return (
     <div className="college-selector">
+      {/* Canvas Auto-Detected Courses */}
+      {canvasPrograms.length > 0 && (
+        <div className="college-selector__canvas-section">
+          <div className="college-selector__canvas-header">
+            <MonitorSmartphone size={22} />
+            <div>
+              <h3 className="college-selector__canvas-title">Your Canvas Courses</h3>
+              <p className="college-selector__canvas-desc">
+                Detected {canvasPrograms.length} exam module{canvasPrograms.length !== 1 ? 's' : ''} from your NC A&T Canvas enrollment.
+              </p>
+            </div>
+          </div>
+          <div className="college-selector__canvas-grid">
+            {canvasPrograms.map(({ college, program }) => (
+              <button
+                key={program.id}
+                className="canvas-program-card"
+                onClick={() => handleProgramClick(college, program)}
+              >
+                <span className="canvas-program-card__badge">
+                  <MonitorSmartphone size={10} /> Canvas
+                </span>
+                <span className="canvas-program-card__icon">{program.icon}</span>
+                <span className="canvas-program-card__name">{program.name}</span>
+                <span className="canvas-program-card__exam">{program.exam}</span>
+                <span className="canvas-program-card__go">
+                  Start Prep <ArrowRight size={14} />
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Hero welcome */}
       <div className="college-selector__hero">
         <div className="college-selector__hero-content">
@@ -40,7 +89,9 @@ export default function CollegeSelector({ onSelectProgram }) {
           />
           <div>
             <h2 className="college-selector__welcome">
-              Welcome to <span className="college-selector__brand">ISLA</span>
+              {canvasPrograms.length > 0 ? 'Or explore all programs' : (
+                <>Welcome to <span className="college-selector__brand">ISLA</span></>
+              )}
             </h2>
             <p className="college-selector__desc">
               Select your college to find your licensure exam prep module.
@@ -92,32 +143,42 @@ export default function CollegeSelector({ onSelectProgram }) {
               {/* Program list (expanded) */}
               {isExpanded && (
                 <div className="college-card__programs">
-                  {college.programs.map(program => (
-                    <button
-                      key={program.id}
-                      className={`program-item ${program.status === 'active' ? 'program-item--active' : 'program-item--locked'}`}
-                      onClick={() => handleProgramClick(college, program)}
-                      disabled={program.status !== 'active'}
-                    >
-                      <span className="program-item__icon">{program.icon}</span>
-                      <div className="program-item__info">
-                        <span className="program-item__name">{program.name}</span>
-                        <span className="program-item__degree">{program.degree}</span>
-                      </div>
-                      {program.exam && (
-                        <span className="program-item__exam">{program.exam}</span>
-                      )}
-                      {program.status === 'active' ? (
-                        <span className="program-item__go">
-                          Start Prep <ArrowRight size={14} />
-                        </span>
-                      ) : (
-                        <span className="program-item__lock">
-                          <Lock size={12} /> Coming Soon
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                  {college.programs.map(program => {
+                    const isCanvasEnrolled = canvasEnrollments.includes(program.id);
+                    return (
+                      <button
+                        key={program.id}
+                        className={`program-item ${program.status === 'active' ? 'program-item--active' : 'program-item--locked'} ${isCanvasEnrolled ? 'program-item--canvas' : ''}`}
+                        onClick={() => handleProgramClick(college, program)}
+                        disabled={program.status !== 'active'}
+                      >
+                        <span className="program-item__icon">{program.icon}</span>
+                        <div className="program-item__info">
+                          <span className="program-item__name">
+                            {program.name}
+                            {isCanvasEnrolled && (
+                              <span className="program-item__canvas-badge">
+                                <MonitorSmartphone size={10} /> Canvas
+                              </span>
+                            )}
+                          </span>
+                          <span className="program-item__degree">{program.degree}</span>
+                        </div>
+                        {program.exam && (
+                          <span className="program-item__exam">{program.exam}</span>
+                        )}
+                        {program.status === 'active' ? (
+                          <span className="program-item__go">
+                            Start Prep <ArrowRight size={14} />
+                          </span>
+                        ) : (
+                          <span className="program-item__lock">
+                            <Lock size={12} /> Coming Soon
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -132,3 +193,4 @@ export default function CollegeSelector({ onSelectProgram }) {
     </div>
   );
 }
+
